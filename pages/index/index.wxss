@@ -1,0 +1,817 @@
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+}
+
+.myCanvas {
+  width: 100%;
+  height: 750rpx;
+  margin-bottom: 20rpx;
+}
+
+.filter-controls {
+  width: 100%;
+  margin: 20rpx 0;
+}
+
+.filter-item {
+  padding: 10rpx 20rpx;
+  margin: 10rpx;
+  background-color: #f0f0f0;
+  border-radius: 5rpx;
+  text-align: center;
+}
+
+.filter-item.active {
+  background-color: #007AFF;
+  color: white;
+}
+
+.intensity-slider {
+  width: 100%;
+  margin: 20rpx 0;
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+button {
+  margin: 10rpx;
+}
+
+.image-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx;
+}
+
+.preview-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.filter-control {
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.filter-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.slider-container {
+  padding: 0 20rpx;
+}
+
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.slider-wrapper slider {
+  flex: 1;
+}
+
+.slider-value {
+  color: #fff;
+  font-size: 28rpx;
+  min-width: 60rpx;
+  text-align: right;
+}
+
+.bottom-buttons {
+  display: flex;
+  padding: 20rpx;
+  gap: 20rpx;
+}
+
+.btn {
+  flex: 1;
+  padding: 20rpx;
+  border-radius: 40rpx;
+  border: none;
+  font-size: 32rpx;
+}
+
+.cancel {
+  background: #333;
+  color: white;
+}
+
+.save {
+  background: #007AFF;
+  color: white;
+}
+
+/* 相机容器样式 */
+.camera-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* 相机主体区域 */
+.camera-view {
+  width: 100%;
+  height: 100%;
+}
+
+/* 相机组件样式 */
+.camera {
+  width: 100%;
+  height: 100%;
+}
+
+/* 相机控制按钮容器 */
+.camera-controls {
+  position: absolute;
+  bottom: 50rpx;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 50rpx;
+}
+
+/* 拍照按钮样式 */
+.take-photo-btn {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner-circle {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: #fff;
+}
+
+/* 控制按钮样式 */
+.control-btn {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-icon {
+  width: 60rpx;
+  height: 60rpx;
+}
+
+/* 比例选择器样式 */
+.ratio-selector {
+  position: fixed;
+  top: 40rpx;
+  right: 40rpx;
+  z-index: 4;
+  display: flex;
+  gap: 20rpx;
+  background: rgba(0,0,0,0.6);
+  padding: 10rpx;
+  border-radius: 30rpx;
+}
+
+.ratio-item {
+  color: #fff;
+  font-family: "KaiTi", "STKaiti", "楷体", sans-serif;
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+}
+
+.ratio-item.active {
+  background: rgba(255,255,255,0.2);
+}
+
+/* 预览容器样式 */
+.preview-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.preview-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 修改滤镜容器样式 */
+.filters-container {
+  height: 300rpx;
+  padding: 20rpx;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.filter-text {
+  color: #fff;
+  font-size: 28rpx;
+  margin-bottom: 10rpx;
+}
+
+.filter-slider {
+  width: 100%;
+}
+
+/* 修改编辑控制器样式 */
+.edit-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 20rpx;
+}
+
+/* 特效列表样式 */
+.filters-list {
+  display: flex;
+  overflow-x: auto;
+  padding: 10rpx 0;
+}
+
+.filter-item {
+  padding: 10rpx 20rpx;
+  margin-right: 20rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.filter-item.active {
+  background: #007AFF;
+}
+
+.filter-name {
+  color: #fff;
+  font-size: 28rpx;
+}
+
+.btn-group {
+  position: absolute;
+  bottom: 20rpx;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 50rpx;
+}
+
+.btn {
+  width: 120rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+/* 苦瓜脸特效部分 */
+.bitter-face-section {
+  display: inline-block;
+  margin-left: 30rpx;
+  padding-left: 30rpx;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bitter-face-title {
+  color: #fff;
+  font-size: 28rpx;
+  margin-bottom: 15rpx;
+}
+
+.bitter-face-options {
+  display: flex;
+  gap: 20rpx;
+}
+
+.bitter-face-item {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 10rpx;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2rpx solid transparent;
+}
+
+.bitter-face-item.active {
+  border-color: #007AFF;
+}
+
+.bitter-face-item image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 修改苦瓜脸样式选择器样式 */
+.bitter-face-popup {
+  padding: 15rpx;
+}
+
+.bitter-face-options {
+  padding: 15rpx 0;
+  gap: 20rpx;
+}
+
+.bitter-face-item {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+/* 添加新的样式 */
+.header {
+  padding: 40rpx 30rpx;
+  text-align: center;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+}
+
+.title {
+  font-size: 36rpx;
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.3);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* 相机取景框 */
+.viewfinder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600rpx;
+  height: 600rpx;
+  border: 2rpx solid rgba(255,255,255,0.3);
+}
+
+.viewfinder-corner {
+  position: absolute;
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid #fff;
+}
+
+.top-left {
+  top: -2rpx;
+  left: -2rpx;
+  border-right: none;
+  border-bottom: none;
+}
+
+.top-right {
+  top: -2rpx;
+  right: -2rpx;
+  border-left: none;
+  border-bottom: none;
+}
+
+.bottom-left {
+  bottom: -2rpx;
+  left: -2rpx;
+  border-right: none;
+  border-top: none;
+}
+
+.bottom-right {
+  bottom: -2rpx;
+  right: -2rpx;
+  border-left: none;
+  border-top: none;
+}
+
+/* 编辑提示 */
+.edit-hint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.hint-icon {
+  width: 80rpx;
+  height: 80rpx;
+  opacity: 0.8;
+}
+
+.hint-text {
+  color: #fff;
+  font-size: 28rpx;
+  text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.5);
+}
+
+/* 滤镜图标 */
+.filter-icon {
+  width: 40rpx;
+  height: 30rpx;
+  margin-right: 10rpx;
+  vertical-align: middle;
+}
+
+/* 苦瓜脸样式选择器美化 */
+.popup-header {
+  margin-bottom: 20rpx;
+}
+
+.popup-title {
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10rpx;
+  background: rgba(0,0,0,0.6);
+  text-align: center;
+}
+
+.item-text {
+  color: #fff;
+  font-size: 24rpx;
+}
+
+/* 按钮美化 */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 20rpx 40rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+.btn-icon {
+  width: 50rpx;
+  height: 50rpx;
+}
+
+/* 主页样式美化 */
+.home-header {
+  padding: 60rpx 40rpx;
+  text-align: center;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+}
+
+.home-title {
+  font-size: 48rpx;
+  color: #fff;
+  font-weight: bold;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  text-shadow: 0 4rpx 8rpx rgba(0,0,0,0.3);
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.home-subtitle {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.8);
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  display: block;
+}
+
+/* 相机比例选择器 */
+.ratio-selector {
+  position: absolute;
+  top: 40rpx;
+  right: 40rpx;
+  z-index: 10;
+  display: flex;
+  gap: 20rpx;
+  background: rgba(0,0,0,0.5);
+  padding: 10rpx;
+  border-radius: 30rpx;
+}
+
+.ratio-item {
+  color: #fff;
+  font-family: "KaiTi", "STKaiti", "楷体", sans-serif;
+  padding: 10rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+}
+
+.ratio-item.active {
+  background: rgba(255,255,255,0.2);
+}
+
+/* 控制按钮居中 */
+.camera-controls {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 40rpx;
+  background: #000;
+}
+
+.control-btn {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-icon {
+  width: 50rpx;
+  height: 50rpx;
+}
+
+/* 相机遮罩 */
+.mask-top, .mask-bottom {
+  width: 100%;
+  background: #000;
+  transition: height 0.3s ease;
+}
+
+/* 相机比例样式 */
+.camera {
+  width: 100%;
+  background: #000;
+  transition: height 0.3s ease;
+}
+
+/* 修改预览容器确保图片完整显示 */
+.preview-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 滤镜列表样式 */
+.filters-list {
+  padding: 15rpx;
+  white-space: nowrap;
+  background: rgba(0,0,0,0.8);
+}
+
+.filter-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 10rpx;
+  padding: 12rpx 20rpx;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12rpx;
+  transition: all 0.3s ease;
+}
+
+.filter-item.active {
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.05);
+}
+
+.filter-item.applied {
+  border: 1rpx solid rgba(255,255,255,0.5);
+}
+
+.filter-name {
+  color: #fff;
+  font-size: 24rpx;
+  font-family: "KaiTi", "STKaiti", "楷体", sans-serif;
+}
+
+/* 滤镜调整器样式 */
+.filter-adjuster {
+  padding: 15rpx;
+  background: rgba(0,0,0,0.8);
+  margin-bottom: 2rpx;
+}
+
+.adjuster-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.intensity-value {
+  color: #fff;
+  font-size: 24rpx;
+  min-width: 60rpx;
+  text-align: right;
+}
+
+.filter-slider {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.bitter-face-popup {
+  padding: 20rpx;
+  background: rgba(0,0,0,0.8);
+}
+
+.bitter-face-options {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx 0;
+}
+
+.bitter-face-item {
+  width: 160rpx;
+  height: 160rpx;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.bitter-face-item image {
+  width: 100%;
+  height: 100%;
+}
+
+.effect-buttons {
+  position: fixed;
+  top: 20rpx;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60rpx;
+  padding: 10rpx;
+}
+
+.eachbutton{
+    display: flex;
+    flex-direction: column;
+    font-size: 25rpx;
+    color: #fff;
+    height: 150rpx;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 5rpx;
+}
+
+.effect-btn {
+  width: 120rpx;
+  height: 150rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  border: 4rpx solid transparent;
+}
+
+.effect-btn.active {
+  border-color: #007AFF;
+}
+
+.effect-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 180rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  gap: 60rpx;
+  padding: 0 40rpx;
+}
+
+.switch-camera {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  position: absolute;
+  left: 10%;
+}
+
+.camera-icon {
+  width: 50rpx;
+  height: 50rpx;
+}
+
+.capture-btn {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(130deg ,lightcoral, khaki );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.take{
+    height: 50rpx;
+    width: 50rpx;
+    border-radius: 100%;
+    background: #fff;
+}
+
+.edit-btn {
+  padding: 10rpx 30rpx;
+  font-size: 28rpx;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 30rpx;
+}
+
+/* 修改操作按钮样式 */
+.action-btn {
+  flex: 1;
+  height: 120rpx;
+  border-radius: 60rpx;
+  border: none;
+  padding: 0;
+  margin: 0 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.action-btn::after {
+  border: none;
+}
+
+.cancel, .save {
+  /* width: 80rpx; */
+  /* height: 80rpx; */
+  height: 50%;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.save-btn {
+  background: rgba(0, 122, 255, 1);
+}
+
+.effect-preview-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+} 

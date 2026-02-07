@@ -1,0 +1,78 @@
+<view class="container {{isDarkMode ? 'dark-mode' : ''}}">
+  <!-- 背景装饰 -->
+  <view class="background">
+    <!-- 新增粒子效果 -->
+    <view class="particles">
+      <view class="particle" style="left: 10%; animation-duration: 8s;"></view>
+      <view class="particle" style="left: 30%; animation-duration: 12s;"></view>
+      <view class="particle" style="left: 50%; animation-duration: 10s;"></view>
+      <view class="particle" style="left: 70%; animation-duration: 15s;"></view>
+      <view class="particle" style="left: 90%; animation-duration: 9s;"></view>
+      <view class="particle" style="left: 15%; animation-duration: 14s;"></view>
+      <view class="particle" style="left: 45%; animation-duration: 11s;"></view>
+      <view class="particle" style="left: 85%; animation-duration: 13s;"></view>
+    </view>
+    
+    <!-- 相机图案 -->
+    <view class="camera-pattern">
+      <view class="camera-body"></view>
+      <view class="camera-lens"></view>
+      <view class="camera-flash"></view>
+    </view>
+
+    <!-- 装饰线条 -->
+    <view class="lines">
+      <view class="line line-1"></view>
+      <view class="line line-2"></view>
+    </view>
+
+    <!-- 几何图形 -->
+    <view class="shapes">
+      <view class="shape circle-shape"></view>
+      <view class="shape square-shape"></view>
+      <view class="shape triangle-shape"></view>
+    </view>
+  </view>
+
+  <!-- 主题切换按钮-->
+  <view class="theme-switch" bindtap="toggleTheme">
+    <text class="theme-text">{{isDarkMode ? '☀️ 暖色' : '🌙 冷色'}}</text>
+  </view>
+
+  <view class="title-container">
+    <text class="title">苦瓜脸相机</text>
+    <view class="subtitle-wrapper">
+      <text class="subtitle">让照片更有趣</text>
+    </view>
+  </view>
+  
+  <view class="button-container">
+    <view class="button-item" bindtap="goToCamera">
+      <image class="button-icon" src="/images/camera.png"></image>
+      <text class="button-text">拍照</text>
+    </view>
+    <view class="button-item" bindtap="goToEdit">
+      <image class="button-icon" src="/images/edit.png"></image>
+      <text class="button-text">修图</text>
+    </view>
+  </view>
+
+  <!-- 底部装饰 -->
+  <view class="bottom-decoration">
+    <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="rgba(255, 255, 255, 0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+    </svg>
+  </view>
+
+  <!-- 新增浮动光点 -->
+  <view class="floating-lights">
+    <view class="light"></view>
+    <view class="light"></view>
+    <view class="light"></view>
+    <view class="light"></view>
+  </view>
+  
+  <!-- 新增装饰性光环 -->
+  <view class="light-ring"></view>
+</view> 
+

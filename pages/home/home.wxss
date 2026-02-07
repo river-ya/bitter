@@ -1,0 +1,773 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    /* background: linear-gradient(135deg, #f6d5f7, #fbe9d7); */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    animation: gradientShift 5s ease infinite;
+    transition: all 0.3s ease;
+  }
+  
+  /* 背景星星效果 */
+  .container::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(aquamarine 1px, transparent 2px),
+      radial-gradient(white 1px, transparent 2px);
+    background-size: 50px 50px;
+    background-position: 0 0, 25px 25px;
+    opacity: 0.1;
+    animation: twinkle 5s infinite alternate;
+  }
+  
+  @keyframes twinkle {
+    from { opacity: 0.05; }
+    to { opacity: 0.15; }
+  }
+  
+  /* 背景装饰 */
+  .background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+  
+  /* 渐变圆形背景 */
+  .circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    filter: blur(40px);
+  }
+  
+  .circle-1 {
+    width: 400rpx;
+    height: 400rpx;
+    background: linear-gradient(45deg, #ffafbd, #ffc3a0);
+    top: -100rpx;
+    left: -100rpx;
+    animation: float 10s ease-in-out infinite;
+  }
+  
+  .circle-2 {
+    width: 300rpx;
+    height: 300rpx;
+    background: linear-gradient(45deg, #96deda, #50c9c3);
+    bottom: 10%;
+    right: -50rpx;
+    animation: float 8s ease-in-out infinite;
+  }
+  
+  .circle-3 {
+    width: 350rpx;
+    height: 350rpx;
+    background: linear-gradient(45deg, #ffd1ff, #fad0c4);
+    bottom: -100rpx;
+    left: 20%;
+    animation: float 12s ease-in-out infinite;
+  }
+  
+  /* 标题容器 */
+  .title-container {
+    text-align: center;
+    margin-bottom: 80rpx;
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 1s ease-out;
+  }
+  
+  .title {
+    font-size: 90rpx;
+    color: #333;
+    font-family: "KaiTi", "STKaiti", "楷体", sans-serif;
+    font-weight: bold;
+    background: linear-gradient(45deg, #ff6b6b, khaki);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 4rpx 4rpx 8rpx rgba(0,0,0,0.1);
+    margin-bottom: 20rpx;
+    position: relative;
+    animation: titleFloat 3s ease-in-out infinite;
+  }
+  
+  .subtitle {
+    font-size: 36rpx;
+    color: #666;
+    font-family: "KaiTi", "STKaiti", "楷体", sans-serif;
+    letter-spacing: 4rpx;
+    position: relative;
+  }
+  
+  /* 按钮容器 */
+  .button-container {
+    display: flex;
+    gap: 60rpx;
+    margin-top: 60rpx;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .button-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255,255,255,0.4);
+    padding: 40rpx;
+    border-radius: 30rpx;
+    width: 200rpx;
+    box-shadow: 0 8rpx 20rpx rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: absolute;
+    overflow: hidden;
+    animation: buttonGlow 3s ease-in-out infinite;
+  }
+  
+  .button-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .button-item:active {
+    transform: scale(0.95);
+    box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.1);
+  }
+  
+  .button-item:active::before {
+    opacity: 1;
+  }
+  
+  .button-icon {
+    width: 80rpx;
+    height: 80rpx;
+    margin-bottom: 20rpx;
+    transition: transform 0.3s ease;
+  }
+  
+  .button-item:active .button-icon {
+    transform: scale(0.9);
+  }
+  
+  .button-text {
+    font-size: 32rpx;
+    color: #333;
+    font-family: "KaiTi", "STKaiti", "楷体", sans-serif;
+  }
+  
+  /* 底部装饰 */
+  .bottom-decoration {
+    position: absolute;
+    bottom: 10%;
+    width: 100%;
+    height: 200rpx;
+    z-index: 10;
+  }
+  
+  .wave {
+    width: 100%;
+    height: 100%;
+    animation: waveMove 5s linear infinite;
+    filter: drop-shadow(0 0 20rpx rgba(255, 255, 255, 0.3));
+  }
+  
+  /* 动画效果 */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20rpx);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20rpx);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* 装饰元素 */
+  .decoration {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .dot {
+    position: absolute;
+    width: 10rpx;
+    height: 10rpx;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    animation: twinkle 2s infinite alternate;
+  }
+  
+  .dot:nth-child(1) { top: 20%; left: 10%; }
+  .dot:nth-child(2) { top: 30%; right: 15%; animation-delay: 0.5s; }
+  .dot:nth-child(3) { bottom: 25%; left: 20%; animation-delay: 1s; }
+  
+  @keyframes twinkle {
+    from { opacity: 0.3; transform: scale(1); }
+    to { opacity: 0.6; transform: scale(1.5); }
+  }
+  
+  /* 相机装饰图案 */
+  .camera-pattern {
+    position: absolute;
+    top: 28%;
+    right: 11%;
+    width: 120rpx;
+    height: 100rpx;
+    animation: cameraFloat 5s ease-in-out infinite;
+  }
+  
+  .camera-body {
+    width: 100%;
+    height: 80rpx;
+    background: linear-gradient(135deg, red, orange);
+    opacity: 0.4;
+    border-radius: 16rpx;
+  }
+  
+  .camera-lens {
+    width: 60rpx;
+    height: 60rpx;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    position: absolute;
+    top: 10rpx;
+    left: 30rpx;
+  }
+  
+  .camera-flash {
+    width: 20rpx;
+    height: 10rpx;
+    background: rgba(255,255,255,0.6);
+    position: absolute;
+    top: 8rpx;
+    right: 20rpx;
+  }
+  
+  /* 装饰线条 */
+  .lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .line {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, aquamarine, transparent);
+  }
+  
+  .line-1 {
+    width: 500rpx;
+    height: 8rpx;
+    opacity: 0.3;
+    top: 15%;
+    left: 0%;
+    transform: rotate(-35deg);
+  }
+  
+  .line-2 {
+    width: 400rpx;
+    height: 7rpx;
+    opacity: 0.3;
+    top: 35%;
+    right: -8%;
+    transform: rotate(50deg);
+  }
+  
+  /* 几何图形 */
+  .shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .shape {
+    position: absolute;
+    opacity: 0.2;
+    animation: shapeRotate 20s linear infinite;
+  }
+  
+  .circle-shape {
+    width: 80rpx;
+    height: 80rpx;
+    border: 4rpx solid blue;
+    border-radius: 50%;
+    top: 15%;
+    left: 20%;
+    opacity: 0.2;
+  }
+  
+  .square-shape {
+    width: 50rpx;
+    height: 50rpx;
+    border: 4rpx solid black;
+    transform: rotate(45deg);
+    bottom: 15%;
+    right: 13%;
+  }
+  
+  .triangle-shape {
+    width: 0;
+    height: 0;
+    border-left: 30rpx solid transparent;
+    border-right: 30rpx solid transparent;
+    border-bottom: 52rpx solid white;
+    opacity: 0.5;
+    top: 40%;
+    left: 28%;
+  }
+  
+  /* 标题样式调整 */
+  .subtitle-wrapper {
+    margin-top: 30rpx;
+  }
+  
+  /* 几何图形装饰 */
+  .geometric-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* 新增动画 */
+  @keyframes float-pattern {
+    0%, 100% {
+      transform: translateY(0) rotate(-15deg);
+    }
+    50% {
+      transform: translateY(-20rpx) rotate(-10deg);
+    }
+  }
+  
+  @keyframes rotate-hex {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes glow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.5);
+    }
+  }
+  
+  /* 新增背景渐变动画 */
+  @keyframes gradientShift {
+    0% { background: linear-gradient(135deg, #f6d5f7, #fbe9d7); }
+    50% { background: linear-gradient(135deg, #fbe9d7, #f6d5f7); }
+    100% { background: linear-gradient(135deg, #f6d5f7, #fbe9d7); }
+  }
+  
+  /* 新增按钮发光效果 */
+  @keyframes buttonGlow {
+    0%, 100% {
+      box-shadow: 0 8rpx 25rpx rgba(255, 105, 107, 0.3);
+    }
+    50% {
+      box-shadow: 0 8rpx 45rpx rgba(255, 105, 107, 0.6);
+    }
+  }
+  
+  /* 新增标题动画 */
+  @keyframes titleFloat {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10rpx);
+    }
+  }
+  
+  /* 新增背景粒子效果 */
+  .particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+  }
+  
+  .particle {
+    position: absolute;
+    bottom: 1%;
+    width: 8rpx;
+    height: 8rpx;
+    background: rgba(200, 255, 250, 0.8);
+    box-shadow: 0 0 10rpx rgba(255, 255, 255, 0.8);
+    animation: particleMove linear infinite, particleTwinkle 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes particleMove {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(100vh);
+    }
+  }
+  
+  @keyframes particleTwinkle {
+    0%, 100% {
+      opacity: 0.8;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+  
+  /* 新增几何图形动画 */
+  @keyframes shapeRotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* 新增波浪动画 */
+  @keyframes waveMove {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  /* 新增相机图案动画 */
+  @keyframes cameraFloat {
+    0%, 100% {
+      transform: translateY(0) rotate(20deg) scale(1);
+    }
+    50% {
+      transform: translateY(-20rpx) rotate(30deg) scale(1.2);
+    }
+  }
+  
+  /* 增加更多粒子 */
+  .particles .particle:nth-child(6) { left: 15%; animation-duration: 14s; }
+  .particles .particle:nth-child(7) { left: 45%; animation-duration: 11s; }
+  .particles .particle:nth-child(8) { left: 85%; animation-duration: 13s; }
+  
+  /* 修改波浪透明度 */
+  .wave path {
+    fill: rgba(255, 255, 255, 1);
+  }
+  
+  /* 增加波浪发光效果 */
+  .wave {
+    filter: drop-shadow(0 0 20rpx rgba(255, 255, 255, 0.3));
+  }
+  
+  /* 新增浮动光点效果 */
+  .floating-lights {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .light {
+    position: absolute;
+    width: 10rpx;
+    height: 10rpx;
+    border-radius: 50%;
+    background: rgba(0, 200, 255, 0.8);
+    filter: blur(2px);
+    animation: floatLight 8s ease-in-out infinite;
+  }
+  
+  .light:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+  .light:nth-child(2) { top: 90%; left: 88%; animation-delay: 2s; }
+  .light:nth-child(3) { top: 80%; left: 20%; animation-delay: 4s; }
+  .light:nth-child(4) { top: 10%; left: 78%; animation-delay: 6s; }
+  
+  @keyframes floatLight {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate(20rpx, -20rpx) scale(2);
+      opacity: 0.8;
+    }
+  }
+  
+  /* 新增按钮悬停光效 */
+  .button-item {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .button-item::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+    transform: scale(0);
+    transition: transform 0.6s ease-out;
+  }
+  
+  .button-item:active::before {
+    transform: scale(1);
+  }
+  
+  /* 新增标题文字渐变动画 */
+  @keyframes titleGradient {
+    0% { 
+      background-position: 0% 50%; 
+      }
+    50% { 
+      background-position: 100% 50%;
+      }
+    100% {
+      background-position: 0% 50%; 
+      }
+  }
+  
+  .title {
+    background-size: 200% auto;
+    background-image: linear-gradient(45deg, 
+      red 0%, 
+      salmon 50%, 
+      yellow 100%
+    );
+    animation: titleGradient 6s linear infinite;
+  }
+  
+  /* 新增装饰性光环 */
+  .light-ring {
+    position: absolute;
+    width: 400rpx;
+    height: 400rpx;
+    border-radius: 50%;
+    border: 2rpx solid rgba(255, 255, 255, 0.1);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: ringPulse 4s ease-in-out infinite;
+  }
+  
+  @keyframes ringPulse {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.2);
+      opacity: 0.1;
+    }
+  }
+  
+  /* 新增按钮点击波纹效果 */
+  .button-ripple {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+  }
+  
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+  
+  /* 新增相机图标呼吸效果 */
+  .camera-icon-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    animation: iconPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes iconPulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.2;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.4;
+    }
+  }
+  
+    @keyframes gradientShift1 {
+      0% { background: linear-gradient(135deg, lightblue,khaki); }
+      50% { background: linear-gradient(135deg, khaki,lightblue); }
+      100% { background: linear-gradient(135deg, lightblue,khaki); }
+    }
+  
+  /* 深色模式样式 */
+  .dark-mode {
+    animation: gradientShift1 10s ease infinite;
+  }
+  
+  .theme-switch {
+    position: fixed;
+    bottom: 40rpx;
+    right: 40rpx;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 16rpx 24rpx;
+    border-radius: 30rpx;
+    backdrop-filter: blur(10px);
+    z-index: 999; /* 添加高z-index确保按钮在最上层 */
+    box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.2);
+  }
+  
+  .theme-icon {
+    width: 40rpx;
+    height: 40rpx;
+    margin-right: 12rpx;
+  }
+  
+  .theme-text {
+    font-size: 24rpx;
+    color: #fff;
+  }
+  
+  /* 深色模式下的粒子效果调整 */
+  .dark-mode .particle {
+    background: rgba(255, 255, 255, 1);
+  }
+  
+  /* 深色模式下的标题颜色调整 */
+  .dark-mode .title {
+    background-size: 200% auto;
+    background: linear-gradient(45deg, blue,#3498db, #2ecc71);
+    animation: titleGradient 6s linear infinite;
+    -webkit-background-clip: text;
+  }
+  
+  /* 深色模式下的按钮样式调整 */
+  .dark-mode .button-item {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .dark-mode .button-text {
+    color: #000;
+  }
+  
+  /* 冷色模式下的装饰元素调整 */
+  .dark-mode .camera-body {
+    background: linear-gradient(135deg, #3498db, #00d2ff);
+    opacity: 0.6;
+  }
+  
+  .dark-mode .camera-lens {
+    background: rgba(220, 240, 255, 0.6);
+  }
+  
+  .dark-mode .camera-flash {
+    background: rgba(220, 240, 255, 0.7);
+  }
+  
+  /* 冷色模式下的几何图形 */
+  .dark-mode .circle-shape {
+    border-color: #3498db;
+    opacity: 0.4;
+  }
+  
+  .dark-mode .square-shape {
+    border-color: #00bcd4;
+    opacity: 0.4;
+  }
+  
+  .dark-mode .triangle-shape {
+    border-bottom-color: #3f51b5;
+    opacity: 0.4;
+  }
+  
+  /* 冷色模式下的装饰线条 */
+  .dark-mode .line {
+    background: linear-gradient(90deg, transparent, #00bcd4, transparent);
+  }
+  
+  /* 冷色模式下的粒子效果 */
+  .dark-mode .particle {
+    background: rgba(52, 152, 219, 0.8);
+    box-shadow: 0 0 10rpx rgba(52, 152, 219, 0.8);
+  }
+  
+  .dark-mode .particle:nth-child(2n) {
+    background: rgba(0, 188, 212, 0.8);
+    box-shadow: 0 0 10rpx rgba(0, 188, 212, 0.8);
+  }
+  
+  .dark-mode .particle:nth-child(3n) {
+    background: rgba(63, 81, 181, 0.8);
+    box-shadow: 0 0 10rpx rgba(63, 81, 181, 0.8);
+  }
+  
+  .dark-mode .particle:nth-child(4n) {
+    background: rgba(0, 150, 136, 0.8);
+    box-shadow: 0 0 10rpx rgba(0, 150, 136, 0.8);
+  }
+  
+  /* 冷色模式下的浮动光点 */
+  .dark-mode .light {
+    background: rgba(52, 152, 219, 0.8);
+    filter: blur(2px);
+  }
+  
+  .dark-mode .floating-lights .light:nth-child(1) { background: rgba(52, 152, 219, 0.8); }
+  .dark-mode .floating-lights .light:nth-child(2) { background: rgba(0, 188, 212, 0.8); }
+  .dark-mode .floating-lights .light:nth-child(3) { background: rgba(63, 81, 181, 0.8); }
+  .dark-mode .floating-lights .light:nth-child(4) { background: rgba(0, 150, 136, 0.8); }
+  
+  /* 冷色模式下的光环 */
+  .dark-mode .light-ring {
+    border: 2rpx solid rgba(52, 152, 219, 0.2);
+  }
+  
+  /* 冷色模式下的按钮样式 */
+  .dark-mode .button-item {
+    background: rgba(240, 248, 255, 0.2);
+  } 

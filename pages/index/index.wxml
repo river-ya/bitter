@@ -1,0 +1,74 @@
+<wxs module="utils">
+module.exports = {
+  getFilterName: function(filters, type) {
+    for (var i = 0; i < filters.length; i++) {
+      if (filters[i].type === type) {
+        return filters[i].name;
+      }
+    }
+    return '';
+  }
+}
+</wxs>
+
+<view class="container">
+  <!-- 顶部特效按钮 -->
+  <view class="effect-buttons">
+    <view class="button-group">
+      <block wx:for="{{styles}}" wx:key="id">
+        <view 
+          class="effect-btn {{currentStyle === item.id ? 'active' : ''}}"
+          bindtap="selectStyle"
+          data-style="{{item.id}}">
+          <view class = "eachbutton">
+          <image src="{{item.preview}}" mode="aspectFill" class="effect-preview"></image>
+          <text class="effect-name">{{item.name}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 相机预览区域 -->
+  <camera 
+    device-position="{{devicePosition}}"
+    flash="off"
+    style="width: 100%; height: calc(100vh - 180px);"
+    frame-size="medium"
+    binderror="handleCameraError"
+    mode="live"
+    frame-rate="24"
+    bindframe="handleFrame">
+    <!-- 实时特效预览图层 -->
+    <cover-image wx:if="{{effectFrame}}" src="{{effectFrame}}" class="effect-preview-layer" mode="aspectFit"></cover-image>
+    
+    <!-- 预览图片 -->
+    <cover-view class="preview-container" wx:if="{{previewImage}}">
+      <cover-image src="{{previewImage}}" class="preview-image" mode="aspectFit"></cover-image>
+    </cover-view>
+  </camera>
+
+  <!-- 底部按钮区域 -->
+  <view class="footer">
+    <!-- 未拍照时显示切换相机和拍照按钮 -->
+    <block wx:if="{{!previewImage}}">
+      <view class="switch-camera" bindtap="switchCamera">
+        <image src="/images/switch-camera.png" class="camera-icon"></image>
+      </view>
+      <button class="capture-btn" bindtap="takePhoto">
+        <view class="take"></view>
+      </button>
+    </block>
+    
+    <!-- 拍照后显示返回和保存按钮 -->
+    <block wx:else>
+      <button class="action-btn back-btn" bindtap="retakePhoto">
+        <image class="cancel" src="/images/back.png" mode = "aspectFit"/>
+        </button>
+        <button class="action-btn save-btn" bindtap="savePhoto">
+            <image class="save" src="/images/save.png" mode="aspectFit"/>
+        </button>
+    </block>
+  </view>
+
+</view> 

@@ -1,0 +1,109 @@
+<view class="container">
+  <!-- 图片预览区域 -->
+  <view class="preview-area">
+    <image 
+      src="{{imagePath}}" 
+      mode="aspectFit" 
+      class="preview-image"
+      style="filter: {{filterStyle}}"
+    />
+  </view>
+
+  <!-- 滤镜控制区域 -->
+  <view class="control-panel">
+    <!-- 滤镜类型选择 -->
+    <view class="filter-tabs">
+      <view 
+        class="tab-item {{filterType === 'normal' ? 'active' : ''}}" 
+        bindtap="switchFilterType" 
+        data-type="normal"
+      >普通滤镜</view>
+      <view 
+        class="tab-item {{filterType === 'bitter' ? 'active' : ''}}" 
+        bindtap="switchFilterType" 
+        data-type="bitter"
+      >苦瓜脸</view>
+    </view>
+
+    <!-- 普通滤镜选项 -->
+    <scroll-view 
+      scroll-x 
+      class="filter-list {{filterType === 'normal' ? '' : 'hidden'}}"
+    >
+      <view 
+        wx:for="{{filters}}" 
+        wx:key="id"
+        class="filter-item {{currentFilter === item.id ? 'active' : ''}}"
+        bindtap="selectFilter"
+        data-id="{{item.id}}"
+      >
+        <text>{{item.name}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 滤镜强度调节 -->
+    <view class="filter-slider" wx:if="{{currentFilter !== 'normal' && filterType === 'normal'}}">
+      <view class="slider-header">
+        <text class="slider-title">{{getCurrentFilterName()}}</text>
+        <text class="slider-value">{{filterValues[currentFilter]}}%</text>
+      </view>
+      <slider 
+        min="0" 
+        max="100" 
+        value="{{filterValues[currentFilter]}}"
+        bindchange="adjustFilter"
+        activeColor="#07c160"
+        backgroundColor="#444"
+        block-color="#fff"
+        block-size="24"
+        class="custom-slider"
+      />
+    </view>
+
+    <!-- 苦瓜脸选项 -->
+    <view class="bitter-face-list {{filterType === 'bitter' ? '' : 'hidden'}}">
+      <view 
+        class="bitter-item {{currentEffect === '' ? 'active' : ''}}"
+        bindtap="selectEffect"
+        data-effect="{{currentEffect}}"
+      >
+        <image src="{{originalImagePath}}" mode="aspectFit"/>
+        <text>原图</text>
+      </view>
+      <view 
+        class="bitter-item {{currentEffect === 'style1' ? 'active' : ''}}"
+        bindtap="selectEffect"
+        data-effect="style1"
+      >
+        <image src="/images/effect1.png" mode="aspectFit"/>
+        <text>苦瓜脸1</text>
+      </view>
+      <view 
+        class="bitter-item {{currentEffect === 'style2' ? 'active' : ''}}"
+        bindtap="selectEffect"
+        data-effect="style2"
+      >
+        <image src="/images/effect2.png" mode="aspectFit"/>
+        <text>苦瓜脸2</text>
+      </view>
+      <view 
+        class="bitter-item {{currentEffect === 'style3' ? 'active' : ''}}"
+        bindtap="selectEffect"
+        data-effect="style3"
+      >
+        <image src="/images/effect3.png" mode="aspectFit"/>
+        <text>苦瓜脸3</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-buttons">
+    <button class="btn cancel" bindtap="goBack">
+      <image class="cancel" src="/images/back.png" mode="aspectFit"/>
+    </button>
+    <button class="btn save" bindtap="saveImage">
+      <image class="save" src="/images/save.png" mode="aspectFit"/>
+    </button>
+  </view>
+</view> 

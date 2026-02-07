@@ -1,0 +1,22 @@
+{
+    "pages": [
+        "pages/home/home",
+        "pages/index/index",
+        "pages/edit/edit"
+    ],
+    "window": {
+        "backgroundTextStyle": "light",
+        "navigationBarBackgroundColor": "#fff",
+        "navigationBarTitleText": "相机",
+        "navigationBarTextStyle": "black"
+    },
+    "requiredPrivateInfos": [
+        "getLocation",
+        "chooseLocation"
+    ],
+    "permission": {
+        "scope.camera": {
+            "desc": "需要使用您的相机进行拍照"
+        }
+    }
+}
