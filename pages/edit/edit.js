@@ -4,6 +4,7 @@ Page({
     filterType: 'normal', // 当前选择的滤镜类型：normal/bitter
     currentEffect: '', // 当前选中的苦瓜脸特效
     currentFilter: 'normal', // 当前选中的普通滤镜
+    sliderValue: 0, // 当前滑块的值
     serverUrl: 'http://192.168.1.96:5000',  // 已替换为本机局域网 IPv4
     filters: [
       { id: 'normal', name: '原图' },
@@ -22,11 +23,6 @@ Page({
     maxImageSize: 5 * 1024 * 1024 // 5MB
   },
 
-  getCurrentFilterName() {
-    const { filters, currentFilter } = this.data;
-    const filter = filters.find(f => f.id === currentFilter);
-    return filter ? filter.name : '';
-  },
   onLoad(options) {
     if (options.image) {
       this.setData({
@@ -37,6 +33,24 @@ Page({
       // 检查图片大小
       this.checkAndCompressImage(options.image);
     }
+  },
+
+  getCurrentFilterName() {
+    const { filters, currentFilter } = this.data;
+    const filter = filters.find(f => f.id === currentFilter);
+    return filter ? filter.name : '';
+  },
+
+  // 节流函数
+  throttle(func, delay) {
+    let timer = null;
+    return function(...args) {
+      if (timer) return;
+      timer = setTimeout(() => {
+        func.apply(this, args);
+        timer = null;
+      }, delay);
+    };
   },
 
   // 切换滤镜类型
@@ -52,10 +66,26 @@ Page({
   // 选择滤镜
   selectFilter(e) {
     const id = e.currentTarget.dataset.id;
-    this.setData({
-      currentFilter: id
-    });
-    this.updateFilterStyle();
+    
+    // 如果选择的滤镜当前值为0，设置为50作为默认值
+    if (id !== 'normal' && this.data.filterValues[id] === 0) {
+      const filterValues = {...this.data.filterValues};
+      filterValues[id] = 50;
+      this.setData({
+        currentFilter: id,
+        filterValues,
+        sliderValue: 50
+      }, () => {
+        this.updateFilterStyle();
+      });
+    } else {
+      this.setData({
+        currentFilter: id,
+        sliderValue: this.data.filterValues[id] || 0
+      }, () => {
+        this.updateFilterStyle();
+      });
+    }
   },
 
   // 调整滤镜强度
@@ -68,18 +98,61 @@ Page({
     const filterValues = {...this.data.filterValues};
     filterValues[filter] = value;
     
-    this.setData({ filterValues }, () => {
+    this.setData({ 
+      filterValues,
+      sliderValue: value
+    }, () => {
       this.updateFilterStyle();
     });
   },
 
+  // 滑块变化事件处理（带节流）
+  onSliderChange: (function() {
+    let timer = null;
+    let pendingValue = null;
+    
+    return function(e) {
+      const value = e.detail.value;
+      const filter = this.data.currentFilter;
+      
+      if (filter === 'normal') return;
+      
+      // 保存待处理的值
+      pendingValue = value;
+      
+      // 立即更新sliderValue，保证UI响应
+      this.setData({ 
+        sliderValue: value
+      });
+      
+      // 使用节流更新filterValues和filterStyle
+      if (timer) return;
+      
+      timer = setTimeout(() => {
+        if (pendingValue !== null) {
+          const filterValues = {...this.data.filterValues};
+          filterValues[filter] = pendingValue;
+          
+          this.setData({ 
+            filterValues
+          }, () => {
+            this.updateFilterStyle();
+          });
+          
+          pendingValue = null;
+        }
+        timer = null;
+      }, 50);  // 50ms节流
+    };
+  })(),
+
   // 更新滤镜样式
   updateFilterStyle() {
-    const { filterValues } = this.data;
+    const { filterValues, currentFilter } = this.data;
     let filterStyle = '';
     
-    if (this.data.currentFilter !== 'normal') {
-      switch(this.data.currentFilter) {
+    if (currentFilter !== 'normal') {
+      switch(currentFilter) {
         case 'grayscale':
           filterStyle = `grayscale(${filterValues.grayscale}%)`;
           break;
@@ -95,11 +168,14 @@ Page({
       }
     }
     
-    this.setData({ filterStyle });
+    // 只有当filterStyle真正改变时才更新
+    if (this.data.filterStyle !== filterStyle) {
+      this.setData({ filterStyle });
+    }
   },
 
   // 选择苦瓜脸特效
-  selectEffect(e) {
+  async selectEffect(e) {
     const effect = e.currentTarget.dataset.effect;
     
     // 如果再次点击当前效果，恢复原图
@@ -120,66 +196,89 @@ Page({
 
     this.setData({ currentEffect: effect });
     
-    wx.showLoading({ title: '处理中...' });
-    // 将图片转为base64
-    wx.getFileSystemManager().readFile({
-      filePath: this.data.imagePath,
-      encoding: 'base64',
-      success: (res) => {
-        // 调用后端API应用特效
-        wx.request({
-          url: `${this.data.serverUrl}/apply_filter`,  // 替换为你的服务器地址
-          method: 'POST',
-          data: {
-            image: res.data,
-            style: effect,
-            intensity: 1.0
-          },
-          success: (res) => {
-            if (res.data.image) {
-              // 将base64图片保存为临时文件
-              const buffer = wx.base64ToArrayBuffer(res.data.image);
-              const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_${Date.now()}.jpg`;
-              
-              wx.getFileSystemManager().writeFile({
-                filePath: tempFilePath,
-                data: buffer,
-                encoding: 'binary',
-                success: () => {
-                  this.setData({
-                    imagePath: tempFilePath
-                  });
-                },
-                fail: (err) => {
-                  console.error('保存图片失败:', err);
-                  wx.showToast({
-                    title: '处理失败',
-                    icon: 'none'
-                  });
-                }
-              });
-            }
-          },
-          fail: (err) => {
-            console.error('请求失败:', err);
-            wx.showToast({
-              title: '网络错误',
-              icon: 'none'
-            });
-          },
-          complete: () => {
-            wx.hideLoading();
+    try {
+      wx.showLoading({ title: '处理中...' });
+      
+      // 将图片转为base64
+      const base64Image = await this.readFileAsBase64(this.data.originalImagePath);
+      
+      // 调用后端API应用特效
+      const resultImage = await this.applyEffectApi(base64Image, effect);
+      
+      // 保存处理后的图片
+      const tempFilePath = await this.saveImageFile(resultImage);
+      
+      // 更新显示
+      this.setData({ imagePath: tempFilePath });
+      
+    } catch (err) {
+      console.error('处理失败:', err);
+      wx.showToast({
+        title: err.message || '处理失败',
+        icon: 'none'
+      });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  // 读取文件为base64
+  readFileAsBase64(filePath) {
+    return new Promise((resolve, reject) => {
+      wx.getFileSystemManager().readFile({
+        filePath: filePath,
+        encoding: 'base64',
+        success: (res) => resolve(res.data),
+        fail: (err) => {
+          console.error('读取图片失败:', err);
+          reject(new Error('图片读取失败'));
+        }
+      });
+    });
+  },
+
+  // 调用特效API
+  applyEffectApi(base64Image, effect) {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: `${this.data.serverUrl}/apply_filter`,
+        method: 'POST',
+        data: {
+          image: base64Image,
+          style: effect,
+          intensity: 1.0
+        },
+        success: (res) => {
+          if (res.data && res.data.image) {
+            resolve(res.data.image);
+          } else {
+            reject(new Error('服务器返回数据格式错误'));
           }
-        });
-      },
-      fail: (err) => {
-        console.error('读取图片失败:', err);
-        wx.hideLoading();
-        wx.showToast({
-          title: '图片处理失败',
-          icon: 'none'
-        });
-      }
+        },
+        fail: (err) => {
+          console.error('请求失败:', err);
+          reject(new Error('网络请求失败'));
+        }
+      });
+    });
+  },
+
+  // 保存图片文件
+  saveImageFile(base64Image) {
+    return new Promise((resolve, reject) => {
+      const buffer = wx.base64ToArrayBuffer(base64Image);
+      const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_${Date.now()}.jpg`;
+      
+      wx.getFileSystemManager().writeFile({
+        filePath: tempFilePath,
+        data: buffer,
+        encoding: 'binary',
+        success: () => resolve(tempFilePath),
+        fail: (err) => {
+          console.error('保存图片失败:', err);
+          reject(new Error('图片保存失败'));
+        }
+      });
     });
   },
 

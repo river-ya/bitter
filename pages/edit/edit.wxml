@@ -45,17 +45,15 @@
     <view class="filter-slider" wx:if="{{currentFilter !== 'normal' && filterType === 'normal'}}">
       <view class="slider-header">
         <text class="slider-title">{{getCurrentFilterName()}}</text>
-        <text class="slider-value">{{filterValues[currentFilter]}}%</text>
+        <text class="slider-value">{{sliderValue}}%</text>
       </view>
       <slider 
         min="0" 
         max="100" 
-        value="{{filterValues[currentFilter]}}"
-        bindchange="adjustFilter"
+        value="{{sliderValue}}"
+        bindchanging="onSliderChange"
         activeColor="#07c160"
         backgroundColor="#444"
-        block-color="#fff"
-        block-size="24"
         class="custom-slider"
       />
     </view>
