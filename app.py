@@ -350,7 +350,7 @@ def apply_filter():
 
         image_b64 = data["image"]
         style = data["style"]
-        intensity = float(data.get("intensity", 1.0))
+        intensity = float(data.get("intensity", 5.0))
 
         # 转换base64图片为OpenCV格式
         image = base64_to_image(image_b64)
