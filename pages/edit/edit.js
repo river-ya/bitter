@@ -41,18 +41,6 @@ Page({
     return filter ? filter.name : '';
   },
 
-  // 节流函数
-  throttle(func, delay) {
-    let timer = null;
-    return function(...args) {
-      if (timer) return;
-      timer = setTimeout(() => {
-        func.apply(this, args);
-        timer = null;
-      }, delay);
-    };
-  },
-
   // 切换滤镜类型
   switchFilterType(e) {
     const type = e.currentTarget.dataset.type;
@@ -86,24 +74,6 @@ Page({
         this.updateFilterStyle();
       });
     }
-  },
-
-  // 调整滤镜强度
-  adjustFilter(e) {
-    const value = e.detail.value;
-    const filter = this.data.currentFilter;
-    
-    if (filter === 'normal') return;
-    
-    const filterValues = {...this.data.filterValues};
-    filterValues[filter] = value;
-    
-    this.setData({ 
-      filterValues,
-      sliderValue: value
-    }, () => {
-      this.updateFilterStyle();
-    });
   },
 
   // 滑块变化事件处理（带节流）
