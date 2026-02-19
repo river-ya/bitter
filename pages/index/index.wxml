@@ -53,7 +53,7 @@ module.exports = {
     <!-- 未拍照时显示切换相机和拍照按钮 -->
     <block wx:if="{{!previewImage}}">
       <view class="switch-camera" bindtap="switchCamera">
-        <image src="/images/switch-camera.png" class="camera-icon"></image>
+        <image src="/images/switch-camera_new.png" class="camera-icon"></image>
       </view>
       <button class="capture-btn" bindtap="takePhoto">
         <view class="take"></view>
