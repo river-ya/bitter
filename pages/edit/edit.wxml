@@ -98,7 +98,7 @@
   <!-- 底部按钮 -->
   <view class="bottom-buttons">
     <button class="btn cancel" bindtap="goBack">
-      <image class="cancel" src="/images/back.png" mode="aspectFit"/>
+      <image class="cancel" src="/images/back2.png" mode="aspectFit"/>
     </button>
     <button class="btn save" bindtap="saveImage">
       <image class="save" src="/images/save.png" mode="aspectFit"/>
