@@ -52,6 +52,7 @@
         max="100" 
         value="{{sliderValue}}"
         bindchanging="onSliderChange"
+        bindchange="onSliderChange"
         activeColor="#07c160"
         backgroundColor="#444"
         class="custom-slider"
