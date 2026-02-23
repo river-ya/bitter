@@ -27,8 +27,11 @@
 
     <!-- 普通滤镜选项 -->
     <scroll-view 
+      wx:if="{{filterType === 'normal'}}"
       scroll-x 
-      class="filter-list {{filterType === 'normal' ? '' : 'hidden'}}"
+      class="filter-list"
+      enable-flex
+      style="height: 180rpx; width: 100%;"
     >
       <view 
         wx:for="{{filters}}" 
@@ -37,7 +40,15 @@
         bindtap="selectFilter"
         data-id="{{item.id}}"
       >
-        <text>{{item.name}}</text>
+        <view class="filter-preview-container">
+          <image 
+            src="{{originalImagePath}}" 
+            mode="aspectFill" 
+            class="filter-preview"
+            style="filter: {{item.id === 'normal' ? '' : filterStyles[item.id]}}"
+          ></image>
+          <text class="filter-name">{{item.name}}</text>
+        </view>
       </view>
     </scroll-view>
 
