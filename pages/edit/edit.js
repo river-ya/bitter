@@ -5,7 +5,7 @@ Page({
     currentEffect: '', // 当前选中的苦瓜脸特效
     currentFilter: 'normal', // 当前选中的普通滤镜
     sliderValue: 0, // 当前滑块的值
-    serverUrl: 'http://192.168.1.96:5000',  // 已替换为本机局域网 IPv4
+    serverUrl: 'http://192.168.1.101:5000',  // 已替换为本机局域网 IPv4
     filters: [
       { id: 'normal', name: '原图' },
       { id: 'grayscale', name: '黑白' }, 
@@ -19,6 +19,7 @@ Page({
       brightness: 0,
       contrast: 0
     },
+    filterStyles: {}, // 滤镜预览样式 (CSS filter)
     originalImagePath: '', // 保存原始图片路径
     maxImageSize: 5 * 1024 * 1024 // 5MB
   },
@@ -32,7 +33,26 @@ Page({
       
       // 检查图片大小
       this.checkAndCompressImage(options.image);
+      
+      // 生成滤镜预览样式
+      this.generateFilterPreviews();
     }
+  },
+
+  // 生成滤镜预览样式 
+  generateFilterPreviews() {
+    if (!this.data.originalImagePath) return;
+    
+    const filterStyles = {
+      grayscale: 'grayscale(50%)',
+      sepia: 'sepia(50%)',
+      brightness: 'brightness(150%)',
+      contrast: 'contrast(150%)'
+    };
+    
+    this.setData({
+      filterStyles
+    });
   },
 
   getCurrentFilterName() {
@@ -44,11 +64,18 @@ Page({
   // 切换滤镜类型
   switchFilterType(e) {
     const type = e.currentTarget.dataset.type;
+    if(type === this.data.filterType) return;
+    
     this.setData({ 
       filterType: type,
       currentEffect: '',
       currentFilter: 'normal'
     });
+    
+    // 切换到普通滤镜时生成预览图
+    if (type === 'normal') {
+      this.generateFilterPreviews();
+    }
   },
 
   // 选择滤镜

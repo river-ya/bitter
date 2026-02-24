@@ -7,7 +7,7 @@ Page({
     currentImage: '',
     imageLoaded: false,
     filterIntensity: 50,
-    serverUrl: 'http://192.168.1.96:5000',  // 已替换为本机局域网 IPv4
+    serverUrl: 'http://192.168.1.101:5000',  // 已替换为本机局域网 IPv4
     showBitterFaceOptions: false,  // 控制苦瓜脸选项的显示
     currentStyle: 'style0', // 当前选中的特效样式
     previewImage: '',
