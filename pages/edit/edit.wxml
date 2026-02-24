@@ -10,7 +10,7 @@
   </view>
 
   <!-- 滤镜控制区域 -->
-  <view class="control-panel">
+  <view class="control-panel" style="position: relative; left: 0rpx; top: -107rpx">
     <!-- 滤镜类型选择 -->
     <view class="filter-tabs">
       <view 
@@ -45,7 +45,7 @@
             src="{{originalImagePath}}" 
             mode="aspectFill" 
             class="filter-preview"
-            style="filter: {{item.id === 'normal' ? '' : filterStyles[item.id]}}"
+            style="filter: {{item.id === 'blank' ? '' : filterStyles[item.id]}}"
           ></image>
           <text class="filter-name">{{item.name}}</text>
         </view>
@@ -53,7 +53,7 @@
     </scroll-view>
 
     <!-- 当前选中普通滤镜的强度滑块 -->
-    <view class="filter-slider" wx:if="{{currentFilter !== 'normal' && filterType === 'normal'}}">
+    <view class="filter-slider" wx:if="{{currentFilter !== 'blank' && filterType === 'normal'}}">
       <view class="slider-header">
         <text class="slider-title">{{getCurrentFilterName()}}</text>
         <text class="slider-value">{{sliderValue}}%</text>

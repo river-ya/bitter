@@ -31,7 +31,9 @@
   position: relative;
   z-index: 100;
   width: 100%;
+  min-height: 30vh;
   max-height: 42vh;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
