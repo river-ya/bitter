@@ -23,7 +23,7 @@ Page({
       {
         id: 'style1',
         name: '苦瓜脸1',
-        preview: '/images/effect1.png'  // 替换为实际的预览图路径
+        preview: '/images/effect1.png'  
       },
       {
         id: 'style2',

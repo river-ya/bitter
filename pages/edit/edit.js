@@ -3,11 +3,11 @@ Page({
     imagePath: '',
     filterType: 'normal', // 当前选择的滤镜类型：normal/bitter
     currentEffect: '', // 当前选中的苦瓜脸特效
-    currentFilter: 'normal', // 当前选中的普通滤镜
+    currentFilter: 'blank', // 当前选中的普通滤镜
     sliderValue: 0, // 当前滑块的值
     serverUrl: 'http://192.168.1.101:5000',  // 已替换为本机局域网 IPv4
     filters: [
-      { id: 'normal', name: '原图' },
+      { id: 'blank', name: '原图' },
       { id: 'grayscale', name: '黑白' }, 
       { id: 'sepia', name: '复古' },
       { id: 'brightness', name: '明亮' },
@@ -19,9 +19,9 @@ Page({
       brightness: 0,
       contrast: 0
     },
-    filterStyles: {}, // 滤镜预览样式 (CSS filter)
-    originalImagePath: '', // 保存原始图片路径
-    maxImageSize: 5 * 1024 * 1024 // 5MB
+    filterStyles: {}, // 仅用于生成缩略图
+    originalImagePath: '', // 备份原始图片路径
+    maxImageSize: 5 * 1024 * 1024 // 5MB 图片大小限制
   },
 
   onLoad(options) {
@@ -68,8 +68,7 @@ Page({
     
     this.setData({ 
       filterType: type,
-      currentEffect: '',
-      currentFilter: 'normal'
+      currentFilter: 'blank'
     });
     
     // 切换到普通滤镜时生成预览图
@@ -78,32 +77,42 @@ Page({
     }
   },
 
-  // 选择滤镜
+  // 选择普通滤镜（卡片被点击）
   selectFilter(e) {
     const id = e.currentTarget.dataset.id;
-    
-    // 如果选择的滤镜当前值为0，设置为50作为默认值
-    if (id !== 'normal' && this.data.filterValues[id] === 0) {
-      const filterValues = {...this.data.filterValues};
+    if (id === 'blank') {
+      // 原图：清空所有普通滤镜
+      this.setData({
+        currentFilter: 'blank',
+        sliderValue: 0,
+        filterValues: {
+          grayscale: 0,
+          sepia: 0,
+          brightness: 0,
+          contrast: 0
+        }
+      }, () => this.updateFilterStyle());
+      return;
+    }
+    const filterValues = { ...this.data.filterValues };
+    const currentValue = filterValues[id] || 0;
+    const sliderValue = currentValue === 0 ? 50 : currentValue;
+    if (currentValue === 0) {
       filterValues[id] = 50;
       this.setData({
         currentFilter: id,
         filterValues,
-        sliderValue: 50
-      }, () => {
-        this.updateFilterStyle();
-      });
+        sliderValue
+      }, () => this.updateFilterStyle());
     } else {
       this.setData({
         currentFilter: id,
-        sliderValue: this.data.filterValues[id] || 0
-      }, () => {
-        this.updateFilterStyle();
+        sliderValue
       });
     }
   },
 
-  // 滑块变化事件处理（带节流）
+  // 滑块变化事件处理（带节流），作用于当前选中的普通滤镜
   onSliderChange: (function() {
     let timer = null;
     let pendingValue = null;
@@ -112,17 +121,13 @@ Page({
       const value = e.detail.value;
       const filter = this.data.currentFilter;
       
-      if (filter === 'normal') return;
+      if (filter === 'blank') return;
       
-      // 保存待处理的值
       pendingValue = value;
-      
-      // 立即更新sliderValue，保证UI响应
       this.setData({ 
         sliderValue: value
       });
       
-      // 使用节流更新filterValues和filterStyle
       if (timer) return;
       
       timer = setTimeout(() => {
@@ -139,81 +144,48 @@ Page({
           pendingValue = null;
         }
         timer = null;
-      }, 50);  // 50ms节流
+      }, 50);
     };
   })(),
 
-  // 更新滤镜样式
+  // 根据当前滤镜组合生成预览用 CSS filter（实时预览）
   updateFilterStyle() {
-    const { filterValues, currentFilter } = this.data;
-    let filterStyle = '';
-    
-    if (currentFilter !== 'normal') {
-      switch(currentFilter) {
-        case 'grayscale':
-          filterStyle = `grayscale(${filterValues.grayscale}%)`;
-          break;
-        case 'sepia':
-          filterStyle = `sepia(${filterValues.sepia}%)`;
-          break;
-        case 'brightness':
-          filterStyle = `brightness(${100 + filterValues.brightness}%)`;
-          break;
-        case 'contrast':
-          filterStyle = `contrast(${100 + filterValues.contrast}%)`;
-          break;
-      }
-    }
-    
-    // 只有当filterStyle真正改变时才更新
+    const { filterValues } = this.data;
+    const parts = [];
+    if ((filterValues.grayscale || 0) > 0) parts.push(`grayscale(${filterValues.grayscale}%)`);
+    if ((filterValues.sepia || 0) > 0) parts.push(`sepia(${filterValues.sepia}%)`);
+    if ((filterValues.brightness || 0) > 0) parts.push(`brightness(${100 + filterValues.brightness}%)`);
+    if ((filterValues.contrast || 0) > 0) parts.push(`contrast(${100 + filterValues.contrast}%)`);
+    const filterStyle = parts.join(' ');
     if (this.data.filterStyle !== filterStyle) {
       this.setData({ filterStyle });
     }
   },
 
-  // 选择苦瓜脸特效
+  // 选择苦瓜脸特效（仅影响预览底图；下载时按组合一起生成）
   async selectEffect(e) {
     const effect = e.currentTarget.dataset.effect;
-    
-    // 如果再次点击当前效果，恢复原图
-    if (this.data.currentEffect === effect) {
+    // 点击「原图」或再次点击当前效果：恢复底图为原图
+    if (effect === '' || this.data.currentEffect === effect) {
       this.setData({
         currentEffect: '',
         imagePath: this.data.originalImagePath || this.data.imagePath
       });
       return;
     }
-    
-    // 第一次应用效果时，保存原图路径
     if (!this.data.originalImagePath) {
-      this.setData({
-        originalImagePath: this.data.imagePath
-      });
+      this.setData({ originalImagePath: this.data.imagePath });
     }
-
     this.setData({ currentEffect: effect });
-    
     try {
       wx.showLoading({ title: '处理中...' });
-      
-      // 将图片转为base64
       const base64Image = await this.readFileAsBase64(this.data.originalImagePath);
-      
-      // 调用后端API应用特效
       const resultImage = await this.applyEffectApi(base64Image, effect);
-      
-      // 保存处理后的图片
       const tempFilePath = await this.saveImageFile(resultImage);
-      
-      // 更新显示
       this.setData({ imagePath: tempFilePath });
-      
     } catch (err) {
       console.error('处理失败:', err);
-      wx.showToast({
-        title: err.message || '处理失败',
-        icon: 'none'
-      });
+      wx.showToast({ title: err.message || '处理失败', icon: 'none' });
     } finally {
       wx.hideLoading();
     }
@@ -240,16 +212,46 @@ Page({
       wx.request({
         url: `${this.data.serverUrl}/apply_filter`,
         method: 'POST',
+        header: { 'content-type': 'application/json' },
         data: {
           image: base64Image,
-          style: effect,
+          style: effect || '',
           intensity: 1.0
         },
         success: (res) => {
-          if (res.data && res.data.image) {
+            if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.image) {
+              resolve(res.data.image);
+            } else {
+              const msg = (res.data && res.data.error) || `应用失败(${res.statusCode})`;
+              reject(new Error(msg));
+            }
+          },
+          fail: (err) => {
+            console.error('请求失败:', err);
+            reject(new Error('网络请求失败'));
+          }
+      });
+    });
+  },
+
+  // 调用滤镜组合 API：原图 + 苦瓜脸（可选）+ 四种普通滤镜组合
+  applyFilterComboApi(base64Image, bitter_style, filter_values) {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: `${this.data.serverUrl}/apply_filter_combo`,
+        method: 'POST',
+        header: { 'content-type': 'application/json' },
+        data: {
+          image: base64Image,
+          bitter_style: bitter_style || '',
+          filter_values: filter_values || {}
+        },
+        success: (res) => {
+          if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.image) {
             resolve(res.data.image);
           } else {
-            reject(new Error('服务器返回数据格式错误'));
+            const msg = (res.data && res.data.error) || `应用失败(${res.statusCode})`;
+            reject(new Error(msg));
           }
         },
         fail: (err) => {
@@ -279,17 +281,41 @@ Page({
     });
   },
 
-  // 保存图片
-  saveImage() {
-    wx.saveImageToPhotosAlbum({
-      filePath: this.data.imagePath,
-      success: () => {
-        wx.showToast({
-          title: '保存成功',
-          icon: 'success'
-        });
-      }
-    });
+  // 下载图片：按当前组合（苦瓜脸 + 四种普通滤镜）生成图片并保存到相册
+  async saveImage() {
+    const { originalImagePath, currentEffect, filterValues } = this.data;
+    if (!originalImagePath) {
+      wx.showToast({ title: '暂无图片', icon: 'none' });
+      return;
+    }
+    try {
+      wx.showLoading({ title: '生成中...' });
+      const base64Image = await this.readFileAsBase64(originalImagePath);
+      const filter_values = {
+        grayscale: filterValues.grayscale || 0,
+        sepia: filterValues.sepia || 0,
+        brightness: filterValues.brightness || 0,
+        contrast: filterValues.contrast || 0
+      };
+      const resultBase64 = await this.applyFilterComboApi(base64Image, currentEffect || '', filter_values);
+      const filePath = await this.saveImageFile(resultBase64);
+      wx.hideLoading();
+
+      wx.saveImageToPhotosAlbum({
+        filePath,
+        success: () => {
+          wx.showToast({ title: '保存成功', icon: 'success' });
+        },
+        fail: (err) => {
+          console.error('保存失败：', err);
+          wx.showToast({ title: '保存失败', icon: 'none' });
+        }
+      });
+    } catch (err) {
+      console.error('保存处理失败:', err);
+      wx.hideLoading();
+      wx.showToast({ title: err.message || '保存失败', icon: 'none' });
+    }
   },
 
   // 返回首页
@@ -374,7 +400,7 @@ Page({
                   // 重置滤镜和特效
                   this.setData({
                     currentEffect: '',
-                    currentFilter: 'normal',
+                    currentFilter: 'blank',
                     filterStyle: ''
                   });
                 }

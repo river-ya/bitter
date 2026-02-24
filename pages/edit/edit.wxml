@@ -25,7 +25,7 @@
       >苦瓜脸</view>
     </view>
 
-    <!-- 普通滤镜选项 -->
+    <!-- 普通滤镜选项（卡片预览 + 单个滑块） -->
     <scroll-view 
       wx:if="{{filterType === 'normal'}}"
       scroll-x 
@@ -52,7 +52,7 @@
       </view>
     </scroll-view>
 
-    <!-- 滤镜强度调节 -->
+    <!-- 当前选中普通滤镜的强度滑块 -->
     <view class="filter-slider" wx:if="{{currentFilter !== 'normal' && filterType === 'normal'}}">
       <view class="slider-header">
         <text class="slider-title">{{getCurrentFilterName()}}</text>
@@ -75,7 +75,7 @@
       <view 
         class="bitter-item {{currentEffect === '' ? 'active' : ''}}"
         bindtap="selectEffect"
-        data-effect="{{currentEffect}}"
+        data-effect=""
       >
         <image src="{{originalImagePath}}" mode="aspectFit"/>
         <text>原图</text>

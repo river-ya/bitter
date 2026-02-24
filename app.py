@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, abort, request, jsonify
 from flask_cors import CORS
 import numpy as np
 import cv2
@@ -36,7 +36,56 @@ def image_to_base64(image):
         return None
 
 
+def apply_basic_filter_op(image, filter_name, value):
+    """
+    应用简单的基础滤镜效果：
+    - grayscale: 灰度
+    - sepia: 复古
+    - brightness: 亮度
+    - contrast: 对比度
+    value 范围建议为 0-100, 对应不同强度
+    """
+    try:
+        v = max(0.0, min(float(value), 100.0))
+
+        if filter_name == "grayscale":
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+
+        if filter_name == "sepia":
+            # 先生成 sepia 效果，再根据强度与原图进行混合
+            sepia_kernel = np.array(
+                [
+                    [0.272, 0.534, 0.131],
+                    [0.349, 0.686, 0.168],
+                    [0.393, 0.769, 0.189],
+                ]
+            )
+            sepia = cv2.transform(image, sepia_kernel)
+            sepia = np.clip(sepia, 0, 255).astype(np.uint8)
+            alpha = v / 100.0
+            return cv2.addWeighted(image, 1 - alpha, sepia, alpha, 0)
+
+        if filter_name == "brightness":
+            # v: 0-100 -> beta: 0-80
+            beta = v * 0.8
+            return cv2.convertScaleAbs(image, alpha=1.0, beta=beta)
+
+        if filter_name == "contrast":
+            # v: 0-100 -> alpha: 1.0-3.0
+            alpha = 1.0 + (v / 50.0)
+            return cv2.convertScaleAbs(image, alpha=alpha, beta=0)
+
+        # 未知滤镜，直接返回原图
+        return image
+    except Exception as e:
+        print("Error in apply_basic_filter_op:", str(e))
+        return None
+
+
 def apply_bitter_face(img, style, intensity=1.0):
+    if not style or str(style).strip() == "":
+        return img
     # 保存原图像大小
     h, w = img.shape[:2]
     oh, ow = h, w
@@ -53,7 +102,8 @@ def apply_bitter_face(img, style, intensity=1.0):
     faces = detector(denoise)
     if len(faces) == 0:
         print("No face detected!")
-        return img
+        abort(500, description="No face detected!")
+        return None
 
     # 应用特效到所有人脸
     for face in faces:
@@ -74,6 +124,26 @@ def apply_bitter_face(img, style, intensity=1.0):
     img = cv2.resize(img, (ow, oh), interpolation=cv2.INTER_LINEAR)
     return img
 
+def apply_filter_combo_op(image, bitter_style, filter_values, intensity=1.0):
+    """
+    按顺序应用：先苦瓜脸（若有），再依次应用 grayscale / sepia / brightness / contrast（value>0 时）。
+    filter_values: dict, 键为 grayscale, sepia, brightness, contrast，值为 0-100。
+    intensity: 苦瓜脸变形强度，默认为 1.0。
+    """
+    if image is None:
+        return None
+    if bitter_style and str(bitter_style).strip():
+        image = apply_bitter_face(image, bitter_style, intensity)
+        if image is None:
+            return None
+    order = ["grayscale", "sepia", "brightness", "contrast"]
+    for name in order:
+        value = filter_values.get(name, 0) or 0
+        if float(value) > 0:
+            image = apply_basic_filter_op(image, name, value)
+            if image is None:
+                return None
+    return image
 
 def get_boundary(points):
     x = points[:, 0]
@@ -340,35 +410,111 @@ def test():
 
 @app.route("/apply_filter", methods=["POST"])
 def apply_filter():
+    """
+    应用苦瓜脸特效。
+    """
     try:
-        print("收到请求...")  # 添加日志
+        print("收到请求...")
         data = request.json
-        print("请求数据:", data)  # 添加日志
+        print("请求数据:", data)
 
         if not data or "image" not in data or "style" not in data:
             return jsonify({"error": "Missing required parameters"}), 400
 
         image_b64 = data["image"]
-        style = data["style"]
-        intensity = float(data.get("intensity", 5.0))
+        bitter_style = data["style"]
+        intensity = float(data.get("intensity", 1.0))
 
-        # 转换base64图片为OpenCV格式
         image = base64_to_image(image_b64)
         if image is None:
             return jsonify({"error": "Invalid image data"}), 400
 
-        # 应用苦瓜脸特效
-        result = apply_bitter_face(image, style, intensity)
+        result = apply_filter_combo_op(image, bitter_style, {}, intensity)
+        if result is None:
+            return jsonify({"error": "Failed to process image"}), 500
 
-        # 转换回base64
         result_b64 = image_to_base64(result)
         if result_b64 is None:
             return jsonify({"error": "Failed to process image"}), 500
+        return jsonify({"image": result_b64})
+
+    except Exception as e:
+        print("错误:", str(e))
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/apply_basic_filter", methods=["POST"])
+def apply_basic_filter_route():
+    """
+    应用普通滤镜（灰度、复古、亮度、对比度），用于将前端的普通滤镜效果真正写入图片像素。
+    转用 apply_filter_combo_op 实现。
+    请求体示例：
+    {
+        "image": "<base64>",
+        "filter": "brightness",  # grayscale / sepia / brightness / contrast
+        "value": 50              # 0-100 的强度
+    }
+    """
+    try:
+        data = request.json or {}
+
+        image_b64 = data.get("image")
+        filter_name = data.get("filter")
+        value = data.get("value", 0)
+
+        if not image_b64 or not filter_name:
+            return jsonify({"error": "Missing required parameters"}), 400
+
+        image = base64_to_image(image_b64)
+        if image is None:
+            return jsonify({"error": "Invalid image data"}), 400
+
+        result = apply_filter_combo_op(image, "", {filter_name: value})
+        if result is None:
+            return jsonify({"error": "Failed to process image"}), 500
+
+        result_b64 = image_to_base64(result)
+        if result_b64 is None:
+            return jsonify({"error": "Failed to encode image"}), 500
 
         return jsonify({"image": result_b64})
 
     except Exception as e:
-        print("错误:", str(e))  # 添加日志
+        print("错误:", str(e))
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/apply_filter_combo", methods=["POST"])
+def apply_filter_combo_route():
+    """
+    应用滤镜组合：苦瓜脸（可选）+ 多种普通滤镜。
+    请求体：image (base64), bitter_style (''|'style1'|'style2'|'style3'),
+           filter_values: { grayscale, sepia, brightness, contrast } 均为 0-100。
+    """
+    try:
+        data = request.json or {}
+        image_b64 = data.get("image")
+        bitter_style = data.get("bitter_style") or ""
+        filter_values = data.get("filter_values") or {}
+
+        if not image_b64:
+            return jsonify({"error": "Missing image"}), 400
+
+        image = base64_to_image(image_b64)
+        if image is None:
+            return jsonify({"error": "Invalid image data"}), 400
+
+        result = apply_filter_combo_op(image, bitter_style, filter_values)
+        if result is None:
+            return jsonify({"error": "Failed to process image"}), 500
+
+        result_b64 = image_to_base64(result)
+        if result_b64 is None:
+            return jsonify({"error": "Failed to encode image"}), 500
+
+        return jsonify({"image": result_b64})
+    except Exception as e:
+        print("错误:", str(e))
         return jsonify({"error": str(e)}), 500
 
 
