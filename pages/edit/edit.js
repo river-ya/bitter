@@ -206,16 +206,16 @@ Page({
     });
   },
 
-  // 调用特效API
+  // 调用苦瓜脸API
   applyEffectApi(base64Image, effect) {
     return new Promise((resolve, reject) => {
       wx.request({
-        url: `${this.data.serverUrl}/apply_filter`,
+        url: `${this.data.serverUrl}/apply_filter_combo`,
         method: 'POST',
         header: { 'content-type': 'application/json' },
         data: {
           image: base64Image,
-          style: effect || '',
+          bitter_style: effect || '',
           intensity: 1.0
         },
         success: (res) => {
@@ -245,6 +245,7 @@ Page({
           image: base64Image,
           bitter_style: bitter_style || '',
           filter_values: filter_values || {}
+          // intensity 。
         },
         success: (res) => {
           if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.image) {
