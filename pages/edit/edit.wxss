@@ -27,14 +27,14 @@
 
 .control-panel {
   background: rgba(0,0,0,0.5);
-  padding: 10rpx 10rpx;
+  padding: 16rpx 20rpx;
   position: relative;
-  top: 4%;
   z-index: 100;
-  /* max-height: 45vh; */
-  height: 30%;
   width: 100%;
-  /* overflow-y: auto; */
+  min-height: 30vh;
+  max-height: 42vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* 滤镜类型切换 */
@@ -59,14 +59,51 @@
   transform: scale(1.05);
 }
 
-/* 普通滤镜列表 */
-.filter-list {
+/* 滤镜组合：四档滑块 */
+.filter-combo-area {
+  padding: 12rpx 0;
+}
+.filter-combo-reset {
+  color: rgba(255,255,255,0.9);
+  font-size: 26rpx;
+  padding: 12rpx 24rpx;
+  margin-bottom: 16rpx;
+  text-align: center;
+  background: rgba(255,255,255,0.15);
+  border-radius: 24rpx;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.filter-combo-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
-  left:5%;
-  top: 2%;
+  margin-bottom: 12rpx;
+  gap: 16rpx;
+}
+.filter-combo-label {
+  color: #fff;
+  font-size: 26rpx;
+  min-width: 100rpx;
+}
+.filter-combo-slider {
+  flex: 1;
+  margin: 0;
+}
+.filter-combo-value {
+  color: #07c160;
+  font-size: 24rpx;
+  min-width: 64rpx;
+  text-align: right;
+}
+
+/* 普通滤镜列表（保留以兼容旧类名） */
+.filter-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+  padding: 20rpx 30rpx;
   transition: opacity 0.3s ease;
 }
 
@@ -75,19 +112,57 @@
 }
 
 .filter-item {
-  display: inline-block;
-  padding: 15rpx 30rpx;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 25rpx;
+  flex-shrink: 0;
   margin: 0 10rpx;
   color: #fff;
   background: rgba(255,255,255,0.1);
   border-radius: 30rpx;
-  font-size: 28rpx;
+  padding: 10rpx 15rpx;
   transition: all 0.5s ease;
 }
 
 .filter-item.active {
   background: #07c160;
   transform: scale(1.05);
+}
+
+.filter-preview {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 15rpx;
+  display: block;
+}
+
+.filter-preview-placeholder {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 15rpx;
+  background: rgba(255, 255, 255, 0.2);
+  display: block;
+}
+
+.filter-preview-container {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-name {
+  position: absolute;
+  bottom: 8rpx;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 20rpx;
+  color: #fff;
+  text-shadow: 1rpx 1rpx 2rpx rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4rpx;
 }
 
 /* 苦瓜脸列表 */

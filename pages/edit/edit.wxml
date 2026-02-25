@@ -10,7 +10,7 @@
   </view>
 
   <!-- 滤镜控制区域 -->
-  <view class="control-panel">
+  <view class="control-panel" style="position: relative; left: 0rpx; top: -107rpx">
     <!-- 滤镜类型选择 -->
     <view class="filter-tabs">
       <view 
@@ -25,10 +25,13 @@
       >苦瓜脸</view>
     </view>
 
-    <!-- 普通滤镜选项 -->
+    <!-- 普通滤镜选项（卡片预览 + 单个滑块） -->
     <scroll-view 
+      wx:if="{{filterType === 'normal'}}"
       scroll-x 
-      class="filter-list {{filterType === 'normal' ? '' : 'hidden'}}"
+      class="filter-list"
+      enable-flex
+      style="height: 180rpx; width: 100%;"
     >
       <view 
         wx:for="{{filters}}" 
@@ -37,12 +40,20 @@
         bindtap="selectFilter"
         data-id="{{item.id}}"
       >
-        <text>{{item.name}}</text>
+        <view class="filter-preview-container">
+          <image 
+            src="{{originalImagePath}}" 
+            mode="aspectFill" 
+            class="filter-preview"
+            style="filter: {{item.id === 'blank' ? '' : filterStyles[item.id]}}"
+          ></image>
+          <text class="filter-name">{{item.name}}</text>
+        </view>
       </view>
     </scroll-view>
 
-    <!-- 滤镜强度调节 -->
-    <view class="filter-slider" wx:if="{{currentFilter !== 'normal' && filterType === 'normal'}}">
+    <!-- 当前选中普通滤镜的强度滑块 -->
+    <view class="filter-slider" wx:if="{{currentFilter !== 'blank' && filterType === 'normal'}}">
       <view class="slider-header">
         <text class="slider-title">{{getCurrentFilterName()}}</text>
         <text class="slider-value">{{sliderValue}}%</text>
@@ -64,7 +75,7 @@
       <view 
         class="bitter-item {{currentEffect === '' ? 'active' : ''}}"
         bindtap="selectEffect"
-        data-effect="{{currentEffect}}"
+        data-effect=""
       >
         <image src="{{originalImagePath}}" mode="aspectFit"/>
         <text>原图</text>
