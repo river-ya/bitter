@@ -1,11 +1,12 @@
 Page({
   data: {
     imagePath: '',
-    filterType: 'normal', // 当前选择的滤镜类型：normal/bitter
-    currentEffect: '', // 当前选中的苦瓜脸特效
-    currentFilter: 'blank', // 当前选中的普通滤镜
-    sliderValue: 0, // 当前滑块的值
-    serverUrl: 'http://192.168.1.101:5000',  // 已替换为本机局域网 IPv4
+    filterType: 'normal', // 当前选择的大类滤镜：normal/bitter
+    currentEffect: '', // 当前选中的苦瓜脸特效种类
+    currentFilter: 'blank', // 当前选中的普通滤镜种类
+    sliderValue: 0, // 普通滤镜滑块的值 （0-100，或亮度/对比度的-100到100）
+    sliderValue2: 1, // 苦瓜脸强度滑块值（0.0-2.0）
+    serverUrl: 'http://192.168.1.96:5000',  // 应替换为本机局域网 IPv4
     filters: [
       { id: 'blank', name: '原图' },
       { id: 'grayscale', name: '黑白' }, 
@@ -19,6 +20,7 @@ Page({
       brightness: 0,
       contrast: 0
     },
+    effectValue: 1, // 苦瓜脸强度（0.0-2.0）
     filterStyles: {}, // 仅用于生成缩略图
     originalImagePath: '', // 备份原始图片路径
     maxImageSize: 5 * 1024 * 1024 // 5MB 图片大小限制
@@ -60,12 +62,29 @@ Page({
     const filter = filters.find(f => f.id === currentFilter);
     return filter ? filter.name : '';
   },
+  getCurrentEffectName() {
+    const { currentEffect } = this.data;
+    if (!currentEffect) {
+      return '原图';
+    }
+    // currentEffect values are expected to be 'style1','style2','style3', etc.
+    const match = currentEffect.match(/style(\d+)$/);
+    if (match) {
+      return `苦瓜脸${match[1]}`;
+    }
+    // fallback: just return the raw string
+    return currentEffect;
+  }, 
 
   // 切换滤镜类型
   switchFilterType(e) {
     const type = e.currentTarget.dataset.type;
     if(type === this.data.filterType) return;
-    
+    /*
+    注意，切换滤镜类型时会重置当前选中的普通滤镜为「原图」，但不会重置苦瓜脸特效以避免多次调用 API。
+    普通滤镜的最终选择记录在 filderValues 中，切换回普通滤镜时不会影响之前的选择
+    苦瓜脸滤镜的最终选择记录在 currentEffect 中。
+    */
     this.setData({ 
       filterType: type,
       currentFilter: 'blank'
@@ -124,9 +143,7 @@ Page({
       if (filter === 'blank') return;
       
       pendingValue = value;
-      this.setData({ 
-        sliderValue: value
-      });
+      this.setData({ sliderValue: value });
       
       if (timer) return;
       
@@ -146,7 +163,7 @@ Page({
         timer = null;
       }, 50);
     };
-  })(),
+  })(), // IIFE
 
   // 根据当前滤镜组合生成预览用 CSS filter（实时预览）
   updateFilterStyle() {
@@ -162,9 +179,16 @@ Page({
     }
   },
 
-  // 选择苦瓜脸特效（仅影响预览底图；下载时按组合一起生成）
-  async selectEffect(e) {
+  // 点击具体苦瓜脸特效
+  selectEffect(e) {
     const effect = e.currentTarget.dataset.effect;
+    
+    // 选中苦瓜脸 1/2/3 时，都默认使用强度 1.0。
+    this.setData({
+      sliderValue2: 1,
+      effectValue: 1
+    });
+
     // 点击「原图」或再次点击当前效果：恢复底图为原图
     if (effect === '' || this.data.currentEffect === effect) {
       this.setData({
@@ -176,11 +200,29 @@ Page({
     if (!this.data.originalImagePath) {
       this.setData({ originalImagePath: this.data.imagePath });
     }
-    this.setData({ currentEffect: effect });
+
+    // 以下必然是切换到一个新的苦瓜脸特效，调用 API 生成新图
+    this.setData({ currentEffect: effect}, () => this.updateEffectStyle());
+  },
+
+  onSliderChange2(e) {
+    const value = e.detail.value;
+    // value = parseFloat(value.toFixed(2));
+    const effect = this.data.currentEffect;
+    if (!effect || value === this.data.effectValue) return;
+    this.setData({
+      sliderValue2: value,
+      effectValue: value
+    }, () => {
+      this.updateEffectStyle();
+    });
+  },
+
+  async updateEffectStyle() {
     try {
       wx.showLoading({ title: '处理中...' });
       const base64Image = await this.readFileAsBase64(this.data.originalImagePath);
-      const resultImage = await this.applyEffectApi(base64Image, effect);
+      const resultImage = await this.applyEffectApi(base64Image, this.data.currentEffect, this.data.effectValue);
       const tempFilePath = await this.saveImageFile(resultImage);
       this.setData({ imagePath: tempFilePath });
     } catch (err) {
@@ -190,7 +232,7 @@ Page({
       wx.hideLoading();
     }
   },
-
+  
   // 读取文件为base64
   readFileAsBase64(filePath) {
     return new Promise((resolve, reject) => {
@@ -207,7 +249,7 @@ Page({
   },
 
   // 调用苦瓜脸API
-  applyEffectApi(base64Image, effect) {
+  applyEffectApi(base64Image, effect, intensity = 1.0) {
     return new Promise((resolve, reject) => {
       wx.request({
         url: `${this.data.serverUrl}/apply_filter_combo`,
@@ -216,7 +258,7 @@ Page({
         data: {
           image: base64Image,
           bitter_style: effect || '',
-          intensity: 1.0
+          intensity: intensity
         },
         success: (res) => {
             if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.image) {
@@ -235,7 +277,7 @@ Page({
   },
 
   // 调用滤镜组合 API：原图 + 苦瓜脸（可选）+ 四种普通滤镜组合
-  applyFilterComboApi(base64Image, bitter_style, filter_values) {
+  applyFilterComboApi(base64Image, bitter_style, filter_values, effectValue) {
     return new Promise((resolve, reject) => {
       wx.request({
         url: `${this.data.serverUrl}/apply_filter_combo`,
@@ -244,8 +286,8 @@ Page({
         data: {
           image: base64Image,
           bitter_style: bitter_style || '',
-          filter_values: filter_values || {}
-          // intensity 。
+          filter_values: filter_values || {},
+          intensity: effectValue || 1.0
         },
         success: (res) => {
           if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.image) {
@@ -284,7 +326,7 @@ Page({
 
   // 下载图片：按当前组合（苦瓜脸 + 四种普通滤镜）生成图片并保存到相册
   async saveImage() {
-    const { originalImagePath, currentEffect, filterValues } = this.data;
+    const { originalImagePath, currentEffect, filterValues, effectValue} = this.data;
     if (!originalImagePath) {
       wx.showToast({ title: '暂无图片', icon: 'none' });
       return;
@@ -298,7 +340,7 @@ Page({
         brightness: filterValues.brightness || 0,
         contrast: filterValues.contrast || 0
       };
-      const resultBase64 = await this.applyFilterComboApi(base64Image, currentEffect || '', filter_values);
+      const resultBase64 = await this.applyFilterComboApi(base64Image, currentEffect || '', filter_values, effectValue);
       const filePath = await this.saveImageFile(resultBase64);
       wx.hideLoading();
 
@@ -379,7 +421,7 @@ Page({
           filePath: res.tempFilePath,
           success: (fileInfo) => {
             const compressedSize = fileInfo.size;
-            const originalSize = this.data.maxImageSize;
+            const originalSize = this.data.maxImageSize; // 存在问题，懒得弄了。
             
             // 压缩成功，显示结果
             const originalSizeMB = (this.data.maxImageSize / (1024 * 1024)).toFixed(2);
@@ -388,7 +430,7 @@ Page({
             
             wx.showModal({
               title: '压缩成功',
-              content: `图片已从 ${originalSizeMB}MB 压缩至 ${compressedSizeMB}MB，减少了 ${reduction}%。是否使用压缩后的图片？`,
+              content: `图片已从 （超过）${originalSizeMB}MB 压缩至 ${compressedSizeMB}MB，减少了 ${reduction}%。是否使用压缩后的图片？`,
               confirmText: '使用压缩图',
               cancelText: '使用原图',
               success: (modalRes) => {

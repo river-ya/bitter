@@ -3,8 +3,8 @@ import numpy as np
 import app
 
 
-img = cv2.imread('test_images/7.png')
+img = cv2.imread('test_images/1.png')
 
-res = app.apply_bitter_face(img, "style1", intensity=1.0)
+res = app.apply_bitter_face(img, "style1", intensity=0.5)
 
 cv2.imwrite('test_images/test.jpg', res)
