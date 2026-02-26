@@ -105,6 +105,24 @@
         <text>苦瓜脸3</text>
       </view>
     </view>
+
+    <!-- 当前选中苦瓜脸滤镜的强度滑块 -->
+    <view class="filter-slider" wx:if="{{currentEffect !== '' && filterType === 'bitter'}}">
+      <view class="slider-header">
+        <text class="slider-title">{{getCurrentEffectName()}}</text>
+        <text class="slider-value">{{sliderValue2}}</text>
+      </view>
+      <slider 
+        min="0.0" 
+        max="2.0" 
+        step="0.01"
+        value="{{sliderValue2}}"
+        bindchange="onSliderChange2"
+        activeColor="#07c160"
+        backgroundColor="#444"
+        class="custom-slider"
+      />
+    </view>
   </view>
 
   <!-- 底部按钮 -->

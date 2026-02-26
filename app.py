@@ -65,8 +65,11 @@ def apply_basic_filter_op(image, filter_name, value):
         v = max(0.0, min(float(value), 100.0))
 
         if filter_name == "grayscale":
+            # CSS: grayscale(0-100%) → OpenCV: 0-1 混合
+            alpha = v / 100.0
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+            gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+            return cv2.addWeighted(image, 1 - alpha, gray, alpha, 0)
 
         if filter_name == "sepia":
             # 先生成 sepia 效果，再根据强度与原图进行混合
@@ -83,13 +86,13 @@ def apply_basic_filter_op(image, filter_name, value):
             return cv2.addWeighted(image, 1 - alpha, sepia, alpha, 0)
 
         if filter_name == "brightness":
-            # v: 0-100 -> beta: 0-80
-            beta = v * 0.8
-            return cv2.convertScaleAbs(image, alpha=1.0, beta=beta)
+            # CSS: brightness(100-200%) → OpenCV: 1.0-2.0 alpha
+            alpha = 1.0 + (v / 100.0)
+            return cv2.convertScaleAbs(image, alpha=alpha, beta=0)
 
         if filter_name == "contrast":
-            # v: 0-100 -> alpha: 1.0-3.0
-            alpha = 1.0 + (v / 50.0)
+            # CSS: contrast(100-200%) → OpenCV: 1.0-2.0 alpha
+            alpha = 1.0 + (v / 100.0)
             return cv2.convertScaleAbs(image, alpha=alpha, beta=0)
 
         # 未知滤镜，直接返回原图
