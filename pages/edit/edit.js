@@ -6,7 +6,7 @@ Page({
     currentFilter: 'blank', // 当前选中的普通滤镜种类
     sliderValue: 0, // 普通滤镜滑块的值 （0-100，或亮度/对比度的-100到100）
     sliderValue2: 1, // 苦瓜脸强度滑块值（0.0-2.0）
-    serverUrl: 'http://192.168.1.96:5000',  // 应替换为本机局域网 IPv4
+    serverUrl: 'http://10.19.58.131:5000',  // 应替换为本机局域网 IPv4
     filters: [
       { id: 'blank', name: '原图' },
       { id: 'grayscale', name: '黑白' }, 

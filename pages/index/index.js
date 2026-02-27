@@ -7,7 +7,7 @@ Page({
     currentImage: '',
     imageLoaded: false,
     filterIntensity: 50,
-    serverUrl: 'http://192.168.1.96:5000',  // 应替换为本机局域网 IPv4
+    serverUrl: 'http://10.19.58.131:5000',  // 应替换为本机局域网 IPv4
     showBitterFaceOptions: false,  // 控制苦瓜脸选项的显示
     currentStyle: 'style0', // 当前选中的特效样式
     previewImage: '',
@@ -213,10 +213,31 @@ Page({
     });
   },
 
-  savePhoto() {
-    const imagePath = this.data.tempImagePath;
+  // 将 base64 图片保存为临时文件
+  saveBase64ToTempFile(base64Data) {
+    return new Promise((resolve, reject) => {
+      // 移除 base64 前缀
+      const base64 = base64Data.replace(/^data:image\/\w+;base64,/, '');
+      const buffer = wx.base64ToArrayBuffer(base64);
+      const tempFilePath = `${wx.env.USER_DATA_PATH}/effect_${Date.now()}.jpg`;
+      
+      wx.getFileSystemManager().writeFile({
+        filePath: tempFilePath,
+        data: buffer,
+        encoding: 'binary',
+        success: () => resolve(tempFilePath),
+        fail: (err) => {
+          console.error('保存特效图片失败:', err);
+          reject(err);
+        }
+      });
+    });
+  },
+
+  async savePhoto() {
+    const { tempImagePath, effectFrame } = this.data;
     
-    if (!imagePath) {
+    if (!tempImagePath) {
       wx.showToast({
         title: '没有可保存的图片',
         icon: 'none'
@@ -228,8 +249,25 @@ Page({
       title: '保存中...'
     });
     
+    let filePathToSave = tempImagePath;
+    
+    // 如果有特效预览图，保存带特效的图片
+    if (effectFrame) {
+      try {
+        filePathToSave = await this.saveBase64ToTempFile(effectFrame);
+      } catch (err) {
+        console.error('转换特效图片失败:', err);
+        wx.hideLoading();
+        wx.showToast({
+          title: '处理特效失败',
+          icon: 'none'
+        });
+        return;
+      }
+    }
+    
     wx.saveImageToPhotosAlbum({
-      filePath: imagePath,
+      filePath: filePathToSave,
       success: () => {
         wx.hideLoading();
         wx.showToast({
