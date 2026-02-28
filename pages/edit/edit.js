@@ -1,3 +1,5 @@
+const imageUtils = require('../../utils/image.js');
+
 Page({
   data: {
     imagePath: '',
@@ -218,9 +220,9 @@ Page({
   async updateEffectStyle() {
     try {
       wx.showLoading({ title: '处理中...' });
-      const base64Image = await this.readFileAsBase64(this.data.originalImagePath);
+      const base64Image = await imageUtils.readFileAsBase64(this.data.originalImagePath);
       const resultImage = await this.applyEffectApi(base64Image, this.data.currentEffect, this.data.effectValue);
-      const tempFilePath = await this.saveImageFile(resultImage);
+      const tempFilePath = await imageUtils.saveImageFile(resultImage);
       this.setData({ imagePath: tempFilePath });
     } catch (err) {
       console.error('处理失败:', err);
@@ -230,21 +232,6 @@ Page({
     }
   },
   
-  // 读取文件为base64
-  readFileAsBase64(filePath) {
-    return new Promise((resolve, reject) => {
-      wx.getFileSystemManager().readFile({
-        filePath: filePath,
-        encoding: 'base64',
-        success: (res) => resolve(res.data),
-        fail: (err) => {
-          console.error('读取图片失败:', err);
-          reject(new Error('图片读取失败'));
-        }
-      });
-    });
-  },
-
   // 调用苦瓜脸API
   applyEffectApi(base64Image, effect, intensity = 1.0) {
     return new Promise((resolve, reject) => {
@@ -297,25 +284,6 @@ Page({
         fail: (err) => {
           console.error('请求失败:', err);
           reject(new Error('网络请求失败'));
-        }
-      });
-    });
-  },
-
-  // 保存图片文件
-  saveImageFile(base64Image) {
-    return new Promise((resolve, reject) => {
-      const buffer = wx.base64ToArrayBuffer(base64Image);
-      const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_${Date.now()}.jpg`;
-      
-      wx.getFileSystemManager().writeFile({
-        filePath: tempFilePath,
-        data: buffer,
-        encoding: 'binary',
-        success: () => resolve(tempFilePath),
-        fail: (err) => {
-          console.error('保存图片失败:', err);
-          reject(new Error('图片保存失败'));
         }
       });
     });

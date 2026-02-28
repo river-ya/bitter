@@ -1,3 +1,5 @@
+const imageUtils = require('../../utils/image.js');
+
 Page({
   data: {
     tempImagePath: '', // 存储拍照后的临时图片路径
@@ -213,27 +215,6 @@ Page({
     });
   },
 
-  // 将 base64 图片保存为临时文件
-  saveBase64ToTempFile(base64Data) {
-    return new Promise((resolve, reject) => {
-      // 移除 base64 前缀
-      const base64 = base64Data.replace(/^data:image\/\w+;base64,/, '');
-      const buffer = wx.base64ToArrayBuffer(base64);
-      const tempFilePath = `${wx.env.USER_DATA_PATH}/effect_${Date.now()}.jpg`;
-      
-      wx.getFileSystemManager().writeFile({
-        filePath: tempFilePath,
-        data: buffer,
-        encoding: 'binary',
-        success: () => resolve(tempFilePath),
-        fail: (err) => {
-          console.error('保存特效图片失败:', err);
-          reject(err);
-        }
-      });
-    });
-  },
-
   async savePhoto() {
     const { tempImagePath, effectFrame } = this.data;
     
@@ -254,7 +235,7 @@ Page({
     // 如果有特效预览图，保存带特效的图片
     if (effectFrame) {
       try {
-        filePathToSave = await this.saveBase64ToTempFile(effectFrame);
+        filePathToSave = await imageUtils.saveBase64ToTempFile(effectFrame);
       } catch (err) {
         console.error('转换特效图片失败:', err);
         wx.hideLoading();
