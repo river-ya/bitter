@@ -1,3 +1,5 @@
+const imageUtils = require('../../utils/image.js');
+
 Page({
   data: {
     tempImagePath: '', // 存储拍照后的临时图片路径
@@ -7,7 +9,7 @@ Page({
     currentImage: '',
     imageLoaded: false,
     filterIntensity: 50,
-    serverUrl: 'http://192.168.1.96:5000',  // 应替换为本机局域网 IPv4
+    serverUrl: 'http://10.19.58.220:5000',  // 应替换为本机局域网 IPv4
     showBitterFaceOptions: false,  // 控制苦瓜脸选项的显示
     currentStyle: 'style0', // 当前选中的特效样式
     previewImage: '',
@@ -213,10 +215,10 @@ Page({
     });
   },
 
-  savePhoto() {
-    const imagePath = this.data.tempImagePath;
+  async savePhoto() {
+    const { tempImagePath, effectFrame } = this.data;
     
-    if (!imagePath) {
+    if (!tempImagePath) {
       wx.showToast({
         title: '没有可保存的图片',
         icon: 'none'
@@ -228,8 +230,25 @@ Page({
       title: '保存中...'
     });
     
+    let filePathToSave = tempImagePath;
+    
+    // 如果有特效预览图，保存带特效的图片
+    if (effectFrame) {
+      try {
+        filePathToSave = await imageUtils.saveBase64ToTempFile(effectFrame);
+      } catch (err) {
+        console.error('转换特效图片失败:', err);
+        wx.hideLoading();
+        wx.showToast({
+          title: '处理特效失败',
+          icon: 'none'
+        });
+        return;
+      }
+    }
+    
     wx.saveImageToPhotosAlbum({
-      filePath: imagePath,
+      filePath: filePathToSave,
       success: () => {
         wx.hideLoading();
         wx.showToast({
@@ -261,6 +280,12 @@ Page({
           });
         }
       }
+    });
+  },
+
+  editPhoto() {
+    wx.navigateTo({
+      url: '/pages/edit/edit?image=' + this.data.tempImagePath
     });
   },
 

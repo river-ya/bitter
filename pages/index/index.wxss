@@ -767,13 +767,7 @@ button {
     background: #fff;
 }
 
-.edit-btn {
-  padding: 10rpx 30rpx;
-  font-size: 28rpx;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 30rpx;
-}
+
 
 /* 修改操作按钮样式 */
 .action-btn {
@@ -783,17 +777,18 @@ button {
   border: none;
   padding: 0;
   margin: 0 20rpx;
+  background: transparent;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
 }
 
 .action-btn::after {
   border: none;
 }
 
-.cancel, .save {
+.cancel, .save, .edit {
   /* width: 80rpx; */
   /* height: 80rpx; */
   height: 50%;
@@ -805,6 +800,10 @@ button {
 
 .save-btn {
   background: rgba(0, 122, 255, 1);
+}
+
+.edit-btn {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .effect-preview-layer {

@@ -1,3 +1,5 @@
+const imageUtils = require('../../utils/image.js');
+
 Page({
   data: {
     imagePath: '',
@@ -6,7 +8,7 @@ Page({
     currentFilter: 'blank', // 当前选中的普通滤镜种类
     sliderValue: 0, // 普通滤镜滑块的值 （0-100，或亮度/对比度的-100到100）
     sliderValue2: 1, // 苦瓜脸强度滑块值（0.0-2.0）
-    serverUrl: 'http://192.168.1.96:5000',  // 应替换为本机局域网 IPv4
+    serverUrl: 'http://10.19.58.220:5000',  // 应替换为本机局域网 IPv4
     filters: [
       { id: 'blank', name: '原图' },
       { id: 'grayscale', name: '黑白' }, 
@@ -32,9 +34,6 @@ Page({
         imagePath: options.image,
         originalImagePath: options.image
       });
-      
-      // 检查图片大小
-      this.checkAndCompressImage(options.image);
       
       // 生成滤镜预览样式
       this.generateFilterPreviews();
@@ -221,9 +220,9 @@ Page({
   async updateEffectStyle() {
     try {
       wx.showLoading({ title: '处理中...' });
-      const base64Image = await this.readFileAsBase64(this.data.originalImagePath);
+      const base64Image = await imageUtils.readFileAsBase64(this.data.originalImagePath);
       const resultImage = await this.applyEffectApi(base64Image, this.data.currentEffect, this.data.effectValue);
-      const tempFilePath = await this.saveImageFile(resultImage);
+      const tempFilePath = await imageUtils.saveImageFile(resultImage);
       this.setData({ imagePath: tempFilePath });
     } catch (err) {
       console.error('处理失败:', err);
@@ -233,21 +232,6 @@ Page({
     }
   },
   
-  // 读取文件为base64
-  readFileAsBase64(filePath) {
-    return new Promise((resolve, reject) => {
-      wx.getFileSystemManager().readFile({
-        filePath: filePath,
-        encoding: 'base64',
-        success: (res) => resolve(res.data),
-        fail: (err) => {
-          console.error('读取图片失败:', err);
-          reject(new Error('图片读取失败'));
-        }
-      });
-    });
-  },
-
   // 调用苦瓜脸API
   applyEffectApi(base64Image, effect, intensity = 1.0) {
     return new Promise((resolve, reject) => {
@@ -305,25 +289,6 @@ Page({
     });
   },
 
-  // 保存图片文件
-  saveImageFile(base64Image) {
-    return new Promise((resolve, reject) => {
-      const buffer = wx.base64ToArrayBuffer(base64Image);
-      const tempFilePath = `${wx.env.USER_DATA_PATH}/temp_${Date.now()}.jpg`;
-      
-      wx.getFileSystemManager().writeFile({
-        filePath: tempFilePath,
-        data: buffer,
-        encoding: 'binary',
-        success: () => resolve(tempFilePath),
-        fail: (err) => {
-          console.error('保存图片失败:', err);
-          reject(new Error('图片保存失败'));
-        }
-      });
-    });
-  },
-
   // 下载图片：按当前组合（苦瓜脸 + 四种普通滤镜）生成图片并保存到相册
   async saveImage() {
     const { originalImagePath, currentEffect, filterValues, effectValue} = this.data;
@@ -364,110 +329,5 @@ Page({
   // 返回首页
   goBack() {
     wx.navigateBack();
-  },
-
-  // 检查并压缩图片
-  checkAndCompressImage(filePath) {
-    wx.getFileInfo({
-      filePath: filePath,
-      success: (res) => {
-        const fileSize = res.size;
-        const maxSize = this.data.maxImageSize;
-        
-        if (fileSize > maxSize) {
-          // 图片过大，显示压缩提示
-          this.showCompressDialog(filePath, fileSize, maxSize);
-        }
-      },
-      fail: (err) => {
-        console.error('获取文件信息失败:', err);
-      }
-    });
-  },
-
-  // 显示压缩对话框
-  showCompressDialog(filePath, fileSize, maxSize) {
-    const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2);
-    const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(2);
-    
-    wx.showModal({
-      title: '图片过大',
-      content: `当前图片大小为 ${fileSizeMB}MB，超过了 ${maxSizeMB}MB 的限制。是否需要压缩图片以提升处理速度？`,
-      confirmText: '压缩图片',
-      cancelText: '保持原样',
-      success: (res) => {
-        if (res.confirm) {
-          // 用户选择压缩
-          this.compressImage(filePath);
-        }
-      }
-    });
-  },
-
-  // 压缩图片
-  compressImage(filePath) {
-    wx.showLoading({
-      title: '压缩中...',
-    });
-
-    wx.compressImage({
-      src: filePath,
-      quality: 60, // 压缩质量
-      success: (res) => {
-        wx.hideLoading();
-        
-        // 检查压缩后的图片大小
-        wx.getFileInfo({
-          filePath: res.tempFilePath,
-          success: (fileInfo) => {
-            const compressedSize = fileInfo.size;
-            const originalSize = this.data.maxImageSize; // 存在问题，懒得弄了。
-            
-            // 压缩成功，显示结果
-            const originalSizeMB = (this.data.maxImageSize / (1024 * 1024)).toFixed(2);
-            const compressedSizeMB = (compressedSize / (1024 * 1024)).toFixed(2);
-            const reduction = ((1 - compressedSize / this.data.maxImageSize) * 100).toFixed(0);
-            
-            wx.showModal({
-              title: '压缩成功',
-              content: `图片已从 （超过）${originalSizeMB}MB 压缩至 ${compressedSizeMB}MB，减少了 ${reduction}%。是否使用压缩后的图片？`,
-              confirmText: '使用压缩图',
-              cancelText: '使用原图',
-              success: (modalRes) => {
-                if (modalRes.confirm) {
-                  // 使用压缩后的图片
-                  this.setData({
-                    imagePath: res.tempFilePath,
-                    originalImagePath: res.tempFilePath
-                  });
-                  // 重置滤镜和特效
-                  this.setData({
-                    currentEffect: '',
-                    currentFilter: 'blank',
-                    filterStyle: ''
-                  });
-                }
-              }
-            });
-          },
-          fail: (err) => {
-            console.error('获取压缩后文件信息失败:', err);
-            // 即使获取文件信息失败，也提示用户
-            wx.showToast({
-              title: '压缩完成',
-              icon: 'success'
-            });
-          }
-        });
-      },
-      fail: (err) => {
-        console.error('压缩图片失败:', err);
-        wx.hideLoading();
-        wx.showToast({
-          title: '压缩失败',
-          icon: 'none'
-        });
-      }
-    });
   }
 }); 
