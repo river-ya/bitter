@@ -51,10 +51,13 @@
     <block wx:else>
       <button class="action-btn back-btn" bindtap="retakePhoto">
         <image class="cancel" src="/images/back2.png" mode = "aspectFit"/>
-        </button>
-        <button class="action-btn save-btn" bindtap="savePhoto">
-            <image class="save" src="/images/save.png" mode="aspectFit"/>
-        </button>
+      </button>
+      <button class="action-btn save-btn" bindtap="savePhoto">
+          <image class="save" src="/images/save.png" mode="aspectFit"/>
+      </button>
+      <button class="action-btn edit-btn" bindtap="editPhoto">
+          <image class="edit" src="/images/edit2.png" mode="aspectFit"/>
+      </button>
     </block>
   </view>
 

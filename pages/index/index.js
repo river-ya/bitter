@@ -7,7 +7,7 @@ Page({
     currentImage: '',
     imageLoaded: false,
     filterIntensity: 50,
-    serverUrl: 'http://10.19.58.131:5000',  // 应替换为本机局域网 IPv4
+    serverUrl: 'http://10.19.58.220:5000',  // 应替换为本机局域网 IPv4
     showBitterFaceOptions: false,  // 控制苦瓜脸选项的显示
     currentStyle: 'style0', // 当前选中的特效样式
     previewImage: '',
@@ -299,6 +299,12 @@ Page({
           });
         }
       }
+    });
+  },
+
+  editPhoto() {
+    wx.navigateTo({
+      url: '/pages/edit/edit?image=' + this.data.tempImagePath
     });
   },
 
